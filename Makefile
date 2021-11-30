@@ -61,7 +61,7 @@ lint: ## check style with flake8
 	flake8 change_control tests
 
 test:  ## tests with pytest
-	pytest -v -s
+	pytest -v -s --cov=awsecr
 
 coverage:  ## checks testing coverage
 	coverage run --source awsecr -m pytest
@@ -70,7 +70,7 @@ coverage:  ## checks testing coverage
 	$(BROWSER) htmlcov/index.html
 
 release: dist ## package and upload a release
-	twine upload -r lendico dist/*
+	twine upload dist/*
 
 dist: clean ## builds source and wheel package
 	python setup.py sdist
