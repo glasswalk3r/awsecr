@@ -1,7 +1,7 @@
 """Main module."""
 
 import boto3
-from typing import Tuple, List, Set, Generator
+from typing import Tuple, List, Generator, Dict, Deque, Any
 import os
 import docker
 import base64
@@ -13,11 +13,10 @@ class BaseException(Exception):
 
 
 class MissingAWSEnvVar(BaseException):
-    def __init__(self):
-        self.message = 'Missing configuration of awscli (AWS_PROFILE \
-environment variable)'
+    def __init__(self) -> None:
+        self.message = 'Missing AWS environment variables to configure access'
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.message
 
 
@@ -26,7 +25,7 @@ class InvalidPayload(BaseException):
         self.message = f'Unexpected payload received, missing "{missing_key}" \
 from "{api_method}" call response'
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.message
 
 
@@ -39,10 +38,10 @@ def aws_account_info() -> Tuple[str, str]:
     except ValueError as e:
         raise InvalidPayload(missing_key=str(e),
                              api_method='get_authorization_token')
-    return account_id, iam_user
+    return tuple([account_id, iam_user])
 
 
-def registry_fqdn(account_id: str, region: str = 'us-east-1'):
+def registry_fqdn(account_id: str, region: str = 'us-east-1') -> str:
     return f'{account_id}.dkr.ecr.{region}.amazonaws.com'
 
 
@@ -66,14 +65,15 @@ def login_ecr(account_id: str,
         registry=registry_fqdn(account_id=account_id, region=region),
         reauth=True
     )
-    return resp, docker_client
+    return tuple([resp, docker_client])
 
 
 def list_ecr(account_id: str,
              repository: str,
              region: str = 'us-east-1') -> List[List[str]]:
     ecr = boto3.client('ecr')
-    images: deque = deque()
+    images: Deque
+    images = deque()
     images.append(['Image', 'Scan status', 'Vulnerabilities'])
     registry = registry_fqdn(account_id=account_id, region=region)
 
@@ -119,15 +119,48 @@ def image_push(account_id: str,
 
 
 class ECRRepos:
-    """List allowed ECR repositories."""
-    def __init__(self, user: str, client=boto3.client('iam')):
+    """List allowed ECR repositories from default registry."""
+    def __init__(self, client=boto3.client('ecr')) -> None:
 
         if 'AWS_PROFILE' not in os.environ:
-            raise MissingAWSEnvVar()
+            secret = 'AWS_SECRET_ACCESS_KEY' in os.environ
+            access = 'AWS_ACCESS_KEY_ID' in os.environ
+
+            if not (secret and access):
+                raise MissingAWSEnvVar()
 
         self.client = client
-        self.user = user
 
-    def list_repositories(self) -> Set[str]:
-        pass
+    def list_repositories(self) -> List[str]:
+        resp = self.client.describe_repositories()
+        all: Deque[List[str]] = deque()
+        all.append(ECRRepo.fields())
 
+        try:
+            for repo in resp['repositories']:
+                all.append(ECRRepo(repo).to_list())
+        except KeyError as e:
+            raise InvalidPayload(missing_key=str(e),
+                                 api_method='describe_repositories')
+
+        return all
+
+
+class ECRRepo:
+    """Represent a single ECR repository."""
+    def __init__(self, raw: Dict[str, Any]):
+        try:
+            self.name = raw['repositoryName']
+            self.uri = raw['repositoryUri']
+            self.tag_mutability = raw['imageTagMutability']
+            self.scan_on_push = raw['imageScanningConfiguration']['scanOnPush']
+        except KeyError as e:
+            raise InvalidPayload(missing_key=str(e),
+                                 api_method='describe_repositories')
+
+    def to_list(self) -> List[str]:
+        return [self.name, self.uri, self.tag_mutability, self.scan_on_push]
+
+    @staticmethod
+    def fields() -> List[str]:
+        return ['Name', 'URI', 'Tag Mutability', 'Scan on push?']

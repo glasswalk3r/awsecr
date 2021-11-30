@@ -67,11 +67,10 @@ repository')
 
     if args.operation == 'repos':
         account_id, user = aws_account_info()
-        repos = ECRRepos(user)
-
-        for repo in repos.list_repositories():
-            print(repo)
-
+        repos = ECRRepos()
+        table = SingleTable(repos.list_repositories(),
+                            title=f' All ECR repositories ')
+        print(table.table)
         return 0
     else:
         parser.print_help()
