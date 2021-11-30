@@ -37,7 +37,8 @@ optional arguments:
   --list REPOSITORY  sub operation for "image" operation. List all images from the repository.
   --push REPOSITORY  sub operation for "image" operation. Pushes a Docker image to the repository.
 
-The "repos" operation requires no additional options. It lists the available ECR repositories for the current AWS user credentials.
+The "repos" operation requires no additional options. It lists the available
+ECR repositories for the current AWS user credentials.
 ```
 
 ## References
