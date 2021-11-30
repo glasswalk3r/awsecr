@@ -2,19 +2,13 @@
 
 """The setup script."""
 
-from typing import List
 from setuptools import setup, find_packages
 
 with open('README.md') as readme_file:
     readme = readme_file.read()
 
-requirements: List[str] = []
-
-with open('requirements.txt') as requirements_file:
-    requirements = requirements_file.read().split()
-
+requirements = ['boto3==1.20.16', 'docker==5.0.3', 'terminaltables==3.1.0']
 setup_requirements = ['pytest-runner', ]
-
 test_requirements = ['pytest>=3', ]
 
 setup(
@@ -37,6 +31,7 @@ setup(
     },
     install_requires=requirements,
     long_description=readme,
+    long_description_content_type='text/markdown',
     include_package_data=True,
     keywords='awsecr',
     name='awsecr',
