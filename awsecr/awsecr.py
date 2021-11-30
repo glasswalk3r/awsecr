@@ -68,13 +68,29 @@ def login_ecr(account_id: str,
     return tuple([resp, docker_client])
 
 
+class ECRImage():
+    def __init__(self, registry: str, repository: str, image: Dict[str, Any]):
+        self.name: str = f"{registry}/{repository}:{image['imageTags'][0]}"
+        self.status: str = image['imageScanStatus']['status']
+        findings: Dict[str, int]
+        findings = image['imageScanFindingsSummary']['findingSeverityCounts']
+        self.vulnerabilities: int = sum(findings.values())
+
+    def to_list(self) -> List[str]:
+        return [self.name, self.status, self.vulnerabilities]
+
+    @staticmethod
+    def fields() -> List[str]:
+        return ['Image', 'Scan status', 'Vulnerabilities']
+
+
 def list_ecr(account_id: str,
              repository: str,
              region: str = 'us-east-1') -> List[List[str]]:
     ecr = boto3.client('ecr')
-    images: Deque
+    images: Deque[List[str]]
     images = deque()
-    images.append(['Image', 'Scan status', 'Vulnerabilities'])
+    images.append(ECRImage.fields())
     registry = registry_fqdn(account_id=account_id, region=region)
 
     try:
@@ -82,11 +98,7 @@ def list_ecr(account_id: str,
                                    repositoryName=repository)
 
         for image in resp['imageDetails']:
-            images.append([
-                f"{registry}/{repository}:{image['imageTags'][0]}",
-                image['imageScanStatus']['status'],
-                len(image['imageScanFindingsSummary']['findingSeverityCounts'])
-                ])
+            images.append(ECRImage(registry, repository, image).to_list())
     except ValueError as e:
         raise InvalidPayload(missing_key=str(e),
                              api_method='get_authorization_token')
