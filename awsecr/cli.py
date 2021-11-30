@@ -14,28 +14,28 @@ def main() -> int:
     available ECR repositories for the current AWS user credentials.
     """
     parser = argparse.ArgumentParser(description='Easier interaction with AWS \
-ECR to manage Docker images',
+ECR to manage Docker images.',
                                      usage='%(prog)s [OPERATION]',
                                      epilog=epilog
                                      )
     parser.add_argument('operation', choices=['repos', 'image'],
-                        help='The desired operation with the registry')
-    parser.add_argument('--image', help='The local Docker image to use together\
- with the image --push suboperation')
+                        help='the desired operation with the registry')
+    parser.add_argument('--image', help='the local Docker image to use together\
+ with the image --push sub operation.')
 
     group = parser.add_mutually_exclusive_group()
     metavar = 'REPOSITORY'
     group.add_argument(
         '--list',
         metavar=metavar,
-        help='Suboperation for "image" operation. List all images from the \
-repository')
+        help='Sub operation for "image" operation. List all images from the \
+repository.')
 
     group.add_argument(
         '--push',
         metavar=metavar,
-        help='Suboperation for "image" operation. Pushes a Docker image to the \
-repository')
+        help='Sub operation for "image" operation. Pushes a Docker image to \
+the repository.')
 
     args = parser.parse_args()
 
