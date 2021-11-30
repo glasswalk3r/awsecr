@@ -1,5 +1,5 @@
-"""Top-level package for aws-ecr-cli."""
+"""Top-level package for awsecr."""
 
 __author__ = """Alceu Rodrigues de Freitas Junior"""
-__email__ = 'alceu.freitas@lendico.com.br'
+__email__ = 'arfreitas@cpan.org'
 __version__ = '0.1.0'

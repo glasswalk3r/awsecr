@@ -19,7 +19,7 @@ test_requirements = ['pytest>=3', ]
 
 setup(
     author="Alceu Rodrigues de Freitas Junior",
-    author_email='glasswalk3r@yahoo.com.br',
+    author_email='arfreitas@cpan.org',
     python_requires='>=3.8',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
@@ -27,8 +27,9 @@ setup(
         'Natural Language :: English',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
     ],
-    description="Easy interaction with AWS ECR to upload Docker images",
+    description="Easy interaction with AWS ECR from a CLI",
     entry_points={
         'console_scripts': [
             'awsecr=awsecr.cli:main',
