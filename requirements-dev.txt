@@ -10,3 +10,4 @@ pytest-cov
 bump2version
 build
 pytest-runner
+boto3-stubs[ecr,sts]

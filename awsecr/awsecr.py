@@ -1,11 +1,12 @@
 """Main module."""
 
 import boto3
-from typing import Tuple, List, Generator, Dict, Deque, Any
+from typing import Tuple, List, Generator, Dict, Deque, Any, Union, Literal
 import os
 import docker
 import base64
 from collections import deque
+from mypy_boto3_ecr.type_defs import ImageDetailTypeDef
 
 
 class BaseException(Exception):
@@ -46,7 +47,7 @@ def registry_fqdn(account_id: str, region: str = 'us-east-1') -> str:
 
 
 def login_ecr(account_id: str,
-              region: str = 'us-east-1') -> Tuple[dict, docker.DockerClient]:
+              region: str = 'us-east-1') -> Tuple[Any, docker.DockerClient]:
     ecr = boto3.client('ecr')
     response = ecr.get_authorization_token(registryIds=[account_id])
 
@@ -69,15 +70,20 @@ def login_ecr(account_id: str,
 
 
 class ECRImage():
-    def __init__(self, registry: str, repository: str, image: Dict[str, Any]):
+    def __init__(self,
+                 registry: str,
+                 repository: str,
+                 image: ImageDetailTypeDef):
         self.name: str = f"{registry}/{repository}:{image['imageTags'][0]}"
         self.status: str = image['imageScanStatus']['status']
-        findings: Dict[str, int]
+        findings: Dict[Union[Literal['CRITICAL'], Literal['HIGH'],
+                             Literal['INFORMATIONAL'], Literal['LOW'],
+                             Literal['MEDIUM'], Literal['UNDEFINED']], int]
         findings = image['imageScanFindingsSummary']['findingSeverityCounts']
         self.vulnerabilities: int = sum(findings.values())
 
     def to_list(self) -> List[str]:
-        return [self.name, self.status, self.vulnerabilities]
+        return [self.name, self.status, str(self.vulnerabilities)]
 
     @staticmethod
     def fields() -> List[str]:
@@ -143,7 +149,7 @@ class ECRRepos:
 
         self.client = client
 
-    def list_repositories(self) -> List[str]:
+    def list_repositories(self) -> Deque[List[str]]:
         resp = self.client.describe_repositories()
         all: Deque[List[str]] = deque()
         all.append(ECRRepo.fields())
