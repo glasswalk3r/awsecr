@@ -7,6 +7,7 @@ import docker
 import base64
 from collections import deque
 from mypy_boto3_ecr.type_defs import ImageDetailTypeDef
+import mypy_boto3_sts
 
 
 class BaseException(Exception):
@@ -30,12 +31,14 @@ from "{api_method}" call response'
         return self.message
 
 
-def aws_account_info() -> Tuple[str, str]:
-    client = boto3.client('sts')
+def aws_account_info(
+                     client: mypy_boto3_sts.Client = boto3.client('sts')
+                    ) -> Tuple[str, str]:
 
     try:
-        account_id = client.get_caller_identity()['Account']
-        iam_user = client.get_caller_identity()['Arn'].split('/')[1]
+        resp = client.get_caller_identity()
+        account_id = resp['Account']
+        iam_user = resp['Arn'].split('/')[1]
     except ValueError as e:
         raise InvalidPayload(missing_key=str(e),
                              api_method='get_authorization_token')
