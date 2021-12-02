@@ -21,5 +21,7 @@ def test_ecr_repos(monkeypatch):
 
 
 def test_ecr_repos_no_aws_cfg():
-    with pytest.raises(MissingAWSEnvVar):
+    with pytest.raises(MissingAWSEnvVar) as excinfo:
         ECRRepos()
+
+    assert 'AWS environment' in str(excinfo.value)
