@@ -31,7 +31,7 @@ from "{api_method}" call response'
         return self.message
 
 
-def aws_account_info(
+def account_info(
                      client: mypy_boto3_sts.Client = boto3.client('sts')
                     ) -> Tuple[str, str]:
 

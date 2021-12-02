@@ -3,7 +3,7 @@ import argparse
 import sys
 from terminaltables import SingleTable
 
-from awsecr.awsecr import aws_account_info, ECRRepos, list_ecr
+from awsecr.awsecr import account_info, ECRRepos, list_ecr
 from awsecr.awsecr import image_push
 
 
@@ -42,7 +42,7 @@ the repository.')
     if args.operation == 'image':
 
         if args.list:
-            account_id, user = aws_account_info()
+            account_id, user = account_info()
             images = list_ecr(account_id=account_id, repository=args.list)
             table = SingleTable(images,
                                 title=f' Docker images at {args.list} ')
@@ -50,7 +50,7 @@ the repository.')
             return 0
 
         elif args.push:
-            account_id, user = aws_account_info()
+            account_id, user = account_info()
 
             for status in image_push(account_id=account_id,
                                      repository=args.push,
@@ -66,10 +66,10 @@ the repository.')
             return 1
 
     if args.operation == 'repos':
-        account_id, user = aws_account_info()
+        account_id, user = account_info()
         repos = ECRRepos()
         table = SingleTable(repos.list_repositories(),
-                            title=f' All ECR repositories ')
+                            title=' All ECR repositories ')
         print(table.table)
         return 0
     else:

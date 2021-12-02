@@ -3,7 +3,7 @@ import pytest
 import inspect
 from mypy_boto3_sts.type_defs import GetCallerIdentityResponseTypeDef
 
-from awsecr.awsecr import ECRRepos, MissingAWSEnvVar, InvalidPayload, aws_account_info
+from awsecr.awsecr import ECRRepos, MissingAWSEnvVar, InvalidPayload, account_info
 
 
 class AwsStsStub:
@@ -32,7 +32,7 @@ class AwsStsStub:
 
 
 def test_aws_account_id():
-    result = aws_account_info(client=AwsStsStub())
+    result = account_info(client=AwsStsStub())
     assert result.__class__.__name__ == 'tuple'
     assert result[0] == AwsStsStub.account
     assert result[1] == AwsStsStub.user
