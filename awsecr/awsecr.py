@@ -39,7 +39,7 @@ def account_info(
         resp = client.get_caller_identity()
         account_id = resp['Account']
         iam_user = resp['Arn'].split('/')[1]
-    except ValueError as e:
+    except KeyError as e:
         raise InvalidPayload(missing_key=str(e),
                              api_method='get_authorization_token')
     return tuple([account_id, iam_user])
