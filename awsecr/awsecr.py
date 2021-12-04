@@ -33,7 +33,7 @@ from "{api_method}" call response'
 
 def account_info(
                      client: mypy_boto3_sts.Client = boto3.client('sts')
-                    ) -> Tuple[str, str]:
+                ) -> Tuple[str, str]:
 
     try:
         resp = client.get_caller_identity()
@@ -45,13 +45,17 @@ def account_info(
     return tuple([account_id, iam_user])
 
 
-def registry_fqdn(account_id: str, region: str = 'us-east-1') -> str:
+def registry_fqdn(account_id: str, region: str) -> str:
     return f'{account_id}.dkr.ecr.{region}.amazonaws.com'
 
 
 def login_ecr(account_id: str,
-              region: str = 'us-east-1') -> Tuple[Any, docker.DockerClient]:
+              region: str = None) -> Tuple[Any, docker.DockerClient]:
     ecr = boto3.client('ecr')
+
+    if region is None:
+        region = ecr.meta.region_name
+
     response = ecr.get_authorization_token(registryIds=[account_id])
 
     try:
@@ -95,8 +99,12 @@ class ECRImage():
 
 def list_ecr(account_id: str,
              repository: str,
-             region: str = 'us-east-1') -> List[List[str]]:
+             region: str = None) -> List[List[str]]:
     ecr = boto3.client('ecr')
+
+    if region is None:
+        region = ecr.meta.region_name
+
     images: Deque[List[str]]
     images = deque()
     images.append(ECRImage.fields())
