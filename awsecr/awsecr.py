@@ -9,6 +9,7 @@ from collections import deque
 from mypy_boto3_ecr.type_defs import ImageDetailTypeDef
 import mypy_boto3_sts
 import mypy_boto3_ecr
+import sys
 
 
 class BaseException(Exception):
@@ -99,7 +100,14 @@ class ECRImage():
         findings: Dict[Union[Literal['CRITICAL'], Literal['HIGH'],
                              Literal['INFORMATIONAL'], Literal['LOW'],
                              Literal['MEDIUM'], Literal['UNDEFINED']], int]
-        findings = image['imageScanFindingsSummary']['findingSeverityCounts']
+
+        try:
+            summary = image['imageScanFindingsSummary']
+            findings = summary['findingSeverityCounts']
+        except KeyError as e:
+            print(f'Missing image scanning {e}', sys.stderr)
+            findings = {'UNDEFINED': 0}
+
         self.vulnerabilities: int = sum(findings.values())
 
     def to_list(self) -> List[str]:
