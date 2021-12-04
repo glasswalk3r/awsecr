@@ -8,6 +8,7 @@ import base64
 from collections import deque
 from mypy_boto3_ecr.type_defs import ImageDetailTypeDef
 import mypy_boto3_sts
+import mypy_boto3_ecr
 
 
 class BaseException(Exception):
@@ -32,7 +33,7 @@ from "{api_method}" call response'
 
 
 def account_info(
-                     client: mypy_boto3_sts.Client = boto3.client('sts')
+                    client: mypy_boto3_sts.Client = boto3.client('sts')
                 ) -> Tuple[str, str]:
 
     try:
@@ -49,22 +50,34 @@ def registry_fqdn(account_id: str, region: str) -> str:
     return f'{account_id}.dkr.ecr.{region}.amazonaws.com'
 
 
-def login_ecr(account_id: str,
-              region: str = None) -> Tuple[Any, docker.DockerClient]:
-    ecr = boto3.client('ecr')
+def _extract_credentials(token: str) -> Tuple[str]:
+    decoded = base64.b64decode(token).decode('utf-8')
+    return tuple(decoded.split(':'))
+
+
+def _ecr_token(account_id: str,
+               client: mypy_boto3_ecr.Client = boto3.client('ecr'),
+               region: str = None) -> Tuple[str]:
 
     if region is None:
-        region = ecr.meta.region_name
+        region = client.meta.region_name
 
-    response = ecr.get_authorization_token(registryIds=[account_id])
+    response = client.get_authorization_token(registryIds=[account_id])
 
     try:
         token = response['authorizationData'][0]['authorizationToken']
-    except ValueError as e:
+    except KeyError as e:
         raise InvalidPayload(missing_key=str(e),
                              api_method='get_authorization_token')
 
-    username, password = base64.b64decode(token).decode('utf-8').split(':')
+    return tuple([token, region])
+
+
+def login_ecr(account_id: str,
+              region: str = None) -> Tuple[Any, docker.DockerClient]:
+
+    token, region = _ecr_token(account_id, region)
+    username, password = _extract_credentials(token)
     docker_client = docker.DockerClient(base_url='unix://var/run/docker.sock')
 
     resp = docker_client.login(
