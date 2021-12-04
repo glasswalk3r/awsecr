@@ -7,7 +7,8 @@ from awsecr.awsecr import (
     ECRRepos,
     MissingAWSEnvVar,
     InvalidPayload,
-    account_info
+    account_info,
+    BaseException
 )
 
 
@@ -61,8 +62,12 @@ def test_aws_account_id_exception(broken_sts_client):
 
 
 def test_ecr_repos_exceptions():
+    assert inspect.isclass(BaseException)
+    assert issubclass(BaseException, Exception)
     assert inspect.isclass(MissingAWSEnvVar)
+    assert issubclass(MissingAWSEnvVar, BaseException)
     assert inspect.isclass(InvalidPayload)
+    assert issubclass(InvalidPayload, BaseException)
 
 
 def test_ecr_repos(monkeypatch):
