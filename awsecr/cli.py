@@ -52,17 +52,24 @@ the repository.')
         elif args.push:
             account_id, user, region = account_info()
 
+            if args.image is None:
+                print('Missing --image parameter!', file=sys.stderr)
+                parser.print_help()
+                return 1
+
             for status in image_push(account_id=account_id,
                                      repository=args.push,
                                      region=region,
                                      current_image=args.image):
-                print(status)
+                print(status, end='', flush=True)
 
+            print(' done!')
             print('Upload finished')
             return 0
 
         else:
-            print('image operation requires --list or --push options')
+            print('image operation requires --list or --push options',
+                  file=sys.stderr)
             parser.print_help()
             return 1
 
