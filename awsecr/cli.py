@@ -42,7 +42,7 @@ the repository.')
     if args.operation == 'image':
 
         if args.list:
-            account_id, user = account_info()
+            account_id, user, _ = account_info()
             images = list_ecr(account_id=account_id, repository=args.list)
             table = SingleTable(images,
                                 title=f' Docker images at {args.list} ')
@@ -50,10 +50,11 @@ the repository.')
             return 0
 
         elif args.push:
-            account_id, user = account_info()
+            account_id, user, region = account_info()
 
             for status in image_push(account_id=account_id,
                                      repository=args.push,
+                                     region=region,
                                      current_image=args.image):
                 print(status)
 
@@ -66,7 +67,6 @@ the repository.')
             return 1
 
     if args.operation == 'repos':
-        account_id, user = account_info()
         repos = ECRRepos()
         table = SingleTable(repos.list_repositories(),
                             title=' All ECR repositories ')

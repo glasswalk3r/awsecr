@@ -35,30 +35,31 @@ from "{api_method}" call response'
 
 def account_info(
                     client: mypy_boto3_sts.Client = boto3.client('sts')
-                ) -> Tuple[str, str]:
+                ) -> Tuple[str, ...]:
 
     try:
         resp = client.get_caller_identity()
-        account_id = resp['Account']
-        iam_user = resp['Arn'].split('/')[1]
+        account_id: str = resp['Account']
+        iam_user: str = resp['Arn'].split('/')[1]
+        region: str = client.meta.region_name
     except KeyError as e:
         raise InvalidPayload(missing_key=str(e),
                              api_method='get_authorization_token')
-    return tuple([account_id, iam_user])
+    return tuple([account_id, iam_user, region])
 
 
 def registry_fqdn(account_id: str, region: str) -> str:
     return f'{account_id}.dkr.ecr.{region}.amazonaws.com'
 
 
-def _extract_credentials(token: str) -> Tuple[str]:
+def _extract_credentials(token: str) -> Tuple[str, ...]:
     decoded = base64.b64decode(token).decode('utf-8')
     return tuple(decoded.split(':'))
 
 
 def _ecr_token(account_id: str,
                client: mypy_boto3_ecr.Client = boto3.client('ecr'),
-               region: str = None) -> Tuple[str]:
+               region: str = None) -> Tuple[str, ...]:
 
     if region is None:
         region = client.meta.region_name
@@ -75,9 +76,9 @@ def _ecr_token(account_id: str,
 
 
 def login_ecr(account_id: str,
-              region: str = None) -> Tuple[Any, docker.DockerClient]:
+              region: str = None) -> Tuple[Any, ...]:
 
-    token, region = _ecr_token(account_id, region)
+    token, region = _ecr_token(account_id=account_id, region=region)
     username, password = _extract_credentials(token)
     docker_client = docker.DockerClient(base_url='unix://var/run/docker.sock')
 
@@ -150,18 +151,18 @@ def list_ecr(account_id: str,
     return list(images)
 
 
-def image_push(account_id: str,
-               repository: str, current_image: str) -> Generator:
-    registry = registry_fqdn(account_id=account_id)
+def image_push(account_id: str, repository: str, region: str,
+               current_image: str) -> Generator:
+    registry = registry_fqdn(account_id=account_id, region=region)
     print(f'Authenticating against {registry}... ', end='')
-    ignore, client = login_ecr(account_id)
+    ignore, docker = login_ecr(account_id)
     print('done')
-    image = client.images.get(current_image)
+    image = docker.images.get(current_image)
     image_tag = current_image.split(':')[1]
     image.tag(repository=f'{registry}/{repository}',
               tag=image_tag)
 
-    for line in client.images.push(repository=f'{registry}/{repository}',
+    for line in docker.images.push(repository=f'{registry}/{repository}',
                                    tag=image_tag,
                                    stream=True,
                                    decode=True):

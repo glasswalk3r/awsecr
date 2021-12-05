@@ -49,6 +49,7 @@ class AwsEcrStub:
 class AwsStsStub:
     account = '012345678910'
     user = 'foobar'
+    meta = AwsEcrMetaStub()
 
     def __init__(self):
         email = 'arfreitas@cpan.org'
