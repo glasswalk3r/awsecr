@@ -1,4 +1,5 @@
-Added enhanced scanning support.
-Count the amount of tags a repository has stored.
-Count the total size of a repository.
-Added multiple registries support.
+- Add enhanced scanning support.
+- Count the amount of tags a repository has stored.
+- Count the total size of a repository.
+- Add multiple registries support.
+- Add custom region support
