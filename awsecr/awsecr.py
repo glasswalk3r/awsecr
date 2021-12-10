@@ -10,6 +10,7 @@ from mypy_boto3_ecr.type_defs import ImageDetailTypeDef
 import mypy_boto3_sts
 import mypy_boto3_ecr
 import sys
+from botocore.exceptions import ClientError
 
 
 class BaseException(Exception):
@@ -125,6 +126,18 @@ class ECRImage():
         return ['Image', 'Scan status', 'Size (MB)', 'Vulnerabilities']
 
 
+def _die(message: str) -> None:
+    print(message, file=sys.stderr)
+    sys.exit(1)
+
+
+def _die_from_client(e: ClientError) -> None:
+    if e.response['Error']['Code'] == 'RepositoryNotFoundException':
+        _die(str(e).split(':')[1].lstrip())
+
+    _die(str(e))
+
+
 def list_ecr(account_id: str,
              repository: str,
              region: str = None) -> List[List[str]]:
@@ -147,6 +160,11 @@ def list_ecr(account_id: str,
     except ValueError as e:
         raise InvalidPayload(missing_key=str(e),
                              api_method='get_authorization_token')
+    except ClientError as e:
+        _die_from_client(e)
+    except Exception as e:
+        _die('Unexpected exception "{0}": {1}'.format(
+            e.__class__.__name__, str(e)))
 
     return list(images)
 
