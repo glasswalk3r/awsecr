@@ -9,7 +9,7 @@ repository to do the following:
 
 - pull/push images
 - list available repositories
-- list available images per repository
+- list available images per repository, summarizing all founded vulnerabilities.
 
 Authentication between AWS ECR and the local Docker client is automatic.
 
@@ -33,13 +33,12 @@ $ awsecr repos
 Listing images from a repository:
 
 ```
-$ awsecr image --list nodejs
-┌ Docker images at nodejs ─────────────────────────────────────┬─────────────┬───────────┬─────────────────┐
-│ Image                                                        │ Scan status │ Size (MB) │ Vulnerabilities │
-├──────────────────────────────────────────────────────────────┼─────────────┼───────────┼─────────────────┤
-│ 012345678910.dkr.ecr.us-east-1.amazonaws.com/nodejs:14-0.1.0 │ COMPLETE    │ 40.73     │ 1               │
-│ 012345678910.dkr.ecr.us-east-1.amazonaws.com/nodejs:12-0.1.0 │ COMPLETE    │ 29.3      │ 1               │
-└──────────────────────────────────────────────────────────────┴─────────────┴───────────┴─────────────────┘
+┌ Docker images at api-foobar123 ──────────────────────────────────┬─────────────┬───────────┬───────────────────────────┬─────────────────┐
+│ Image                                                            │ Scan status │ Size (MB) │ Pushed at                 │ Vulnerabilities │
+├──────────────────────────────────────────────────────────────────┼─────────────┼───────────┼───────────────────────────┼─────────────────┤
+│ 012345678910.dkr.ecr.us-east-1.amazonaws.com/api-foobar123:1.3.6 │ COMPLETE    │ 205.1     │ 2021-12-09 18:06:20-03:00 │ 1               │
+│ 012345678910.dkr.ecr.us-east-1.amazonaws.com/api-foobar123:1.3.5 │ COMPLETE    │ 133.8     │ 2021-12-09 15:42:28-03:00 │ 1               │
+└──────────────────────────────────────────────────────────────────┴─────────────┴───────────┴───────────────────────────┴─────────────────┘
 ```
 
 ## How to install
