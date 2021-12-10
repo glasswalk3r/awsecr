@@ -108,6 +108,7 @@ class ECRImage():
             summary = image['imageScanFindingsSummary']
             findings = summary['findingSeverityCounts']
             self.size: int = image['imageSizeInBytes']
+            self.pushed_at: str = str(image['imagePushedAt'])
         except KeyError as e:
             print(f'Missing image scanning {e} information', sys.stderr)
             findings = {'UNDEFINED': 0}
@@ -116,14 +117,15 @@ class ECRImage():
 
     def to_list(self) -> List[str]:
         return [self.name, self.status, '{:.4n}'.format(self.size_in_mb()),
-                str(self.vulnerabilities)]
+                self.pushed_at, str(self.vulnerabilities)]
 
     def size_in_mb(self):
         return self.size / (1024 * 1000)
 
     @staticmethod
     def fields() -> List[str]:
-        return ['Image', 'Scan status', 'Size (MB)', 'Vulnerabilities']
+        return ['Image', 'Scan status', 'Size (MB)', 'Pushed at',
+                'Vulnerabilities']
 
 
 def _die(message: str) -> None:
