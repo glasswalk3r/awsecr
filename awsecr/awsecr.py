@@ -11,27 +11,11 @@ import mypy_boto3_sts
 import mypy_boto3_ecr
 import sys
 from botocore.exceptions import ClientError
-
-
-class BaseException(Exception):
-    pass
-
-
-class MissingAWSEnvVar(BaseException):
-    def __init__(self) -> None:
-        self.message = 'Missing AWS environment variables to configure access'
-
-    def __str__(self) -> str:
-        return self.message
-
-
-class InvalidPayload(BaseException):
-    def __init__(self, missing_key: str, api_method: str):
-        self.message = f'Unexpected payload received, missing "{missing_key}" \
-from "{api_method}" call response'
-
-    def __str__(self) -> str:
-        return self.message
+from awsecr.exception import (
+    InvalidPayload,
+    MissingAWSEnvVar,
+    ECRClientException
+)
 
 
 def account_info(
@@ -128,18 +112,6 @@ class ECRImage():
                 'Vulnerabilities']
 
 
-def _die(message: str) -> None:
-    print(message, file=sys.stderr)
-    sys.exit(1)
-
-
-def _die_from_client(e: ClientError) -> None:
-    if e.response['Error']['Code'] == 'RepositoryNotFoundException':
-        _die(str(e).split(':')[1].lstrip())
-
-    _die(str(e))
-
-
 def list_ecr(account_id: str,
              repository: str,
              region: str = None) -> List[List[str]]:
@@ -163,10 +135,8 @@ def list_ecr(account_id: str,
         raise InvalidPayload(missing_key=str(e),
                              api_method='get_authorization_token')
     except ClientError as e:
-        _die_from_client(e)
-    except Exception as e:
-        _die('Unexpected exception "{0}": {1}'.format(
-            e.__class__.__name__, str(e)))
+        raise ECRClientException(error_code=e.response['Error']['Code'],
+                                 message=str(e))
 
     return list(images)
 

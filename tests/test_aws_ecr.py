@@ -7,13 +7,15 @@ from mypy_boto3_sts.type_defs import GetCallerIdentityResponseTypeDef
 
 from awsecr.awsecr import (
     ECRRepos,
-    MissingAWSEnvVar,
-    InvalidPayload,
     account_info,
     registry_fqdn,
-    BaseException,
     _extract_credentials,
     _ecr_token
+)
+from awsecr.exception import (
+    MissingAWSEnvVar,
+    InvalidPayload,
+    BaseException,
 )
 
 

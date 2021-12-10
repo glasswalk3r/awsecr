@@ -3,8 +3,13 @@ import argparse
 import sys
 from terminaltables import SingleTable
 
-from awsecr.awsecr import account_info, ECRRepos, list_ecr
-from awsecr.awsecr import image_push
+from awsecr.awsecr import account_info, ECRRepos, list_ecr, image_push
+from awsecr.exception import ECRClientException
+
+
+def _die(message: str) -> None:
+    print(message, file=sys.stderr)
+    sys.exit(1)
 
 
 def main() -> int:
@@ -43,7 +48,15 @@ the repository.')
 
         if args.list:
             account_id, user, _ = account_info()
-            images = list_ecr(account_id=account_id, repository=args.list)
+
+            try:
+                images = list_ecr(account_id=account_id, repository=args.list)
+            except ECRClientException as e:
+                _die(str(e))
+            except Exception as e:
+                _die('Unexpected exception "{0}": {1}'.format(
+                    e.__class__.__name__, str(e)))
+
             table = SingleTable(images,
                                 title=f' Docker images at {args.list} ')
             print(table.table)
