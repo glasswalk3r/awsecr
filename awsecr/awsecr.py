@@ -86,7 +86,6 @@ def list_ecr(account_id: str,
 
     images: Deque[List[str]]
     images = deque()
-    images.append(ECRImage.fields())
     registry = registry_fqdn(account_id=account_id, region=region)
 
     try:
@@ -102,7 +101,10 @@ def list_ecr(account_id: str,
         raise ECRClientException(error_code=e.response['Error']['Code'],
                                  message=str(e))
 
-    return list(images)
+    result = list(images)
+    result.sort()
+    result.insert(0, ECRImage.fields())
+    return result
 
 
 def image_push(account_id: str, repository: str, region: str,

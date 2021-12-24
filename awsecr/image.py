@@ -26,7 +26,8 @@ class ECRImage():
                              Literal['MEDIUM'], Literal['UNDEFINED']], int]
 
         try:
-            self.name: str = f"{registry}/{repository}:{image['imageTags'][0]}"
+            self.name: str = image['imageTags'][0]
+            self.fullname: str = f"{registry}/{repository}:{self.name}"
             self.status: str = image['imageScanStatus']['status']
             self.size: int = image['imageSizeInBytes']
             self.pushed_at: str = str(image['imagePushedAt'])
@@ -39,7 +40,7 @@ class ECRImage():
 
     def to_list(self) -> List[str]:
         """Convert a list attributes to a list of strings."""
-        return [self.name, self.status, '{:.4n}'.format(self.size_in_mb()),
+        return [self.fullname, self.status, '{:.4n}'.format(self.size_in_mb()),
                 self.pushed_at, str(self.vulnerabilities)]
 
     def size_in_mb(self):
@@ -51,3 +52,11 @@ class ECRImage():
         """Return all the fields names of a instance as a list."""
         return ['Image', 'Scan status', 'Size (MB)', 'Pushed at',
                 'Vulnerabilities']
+
+    def __cmp__(self, other):
+        if self.name < other.name:
+            return -1
+        else:
+            if self.name == other.name:
+                return 0
+            return 1
