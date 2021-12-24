@@ -3,7 +3,7 @@ import pytest
 import inspect
 from datetime import datetime
 
-from awsecr.awsecr import ECRImage
+from awsecr.image import ECRImage
 
 
 @pytest.fixture(scope='module')
