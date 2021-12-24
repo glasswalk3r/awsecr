@@ -4,6 +4,7 @@ import inspect
 from datetime import datetime
 
 from awsecr.image import ECRImage
+from awsecr.exception import InvalidPayload
 
 
 @pytest.fixture(scope='module')
@@ -12,15 +13,19 @@ def now():
 
 
 @pytest.fixture
-def new_instance(now):
-    image_details = {
-        'imageTags': ['0.1.0'],
-        'imageScanStatus': {'status': 'COMPLETE'},
-        'imageScanFindingsSummary': {
-            'findingSeverityCounts': {'UNDEFINED': 1}},
-        'imageSizeInBytes': 62380145,
-        'imagePushedAt': now
-    }
+def image_details(now):
+    return {
+            'imageTags': ['0.1.0'],
+            'imageScanStatus': {'status': 'COMPLETE'},
+            'imageScanFindingsSummary': {
+                'findingSeverityCounts': {'UNDEFINED': 1}},
+            'imageSizeInBytes': 62380145,
+            'imagePushedAt': now
+        }
+
+
+@pytest.fixture
+def new_instance(now, image_details):
     return ECRImage(
         '012345678910.dkr.ecr.us-east-2.amazonaws.com',
         'foobar',
@@ -68,3 +73,12 @@ def test_ecr_image_fields(new_instance):
                 'Vulnerabilities']
 
     assert new_instance.fields() == expected
+
+
+def test_ecr_image_exception(image_details):
+    image_details.pop('imageScanFindingsSummary')
+
+    with pytest.raises(InvalidPayload) as excinfo:
+        ECRImage('0123', 'foobar', image_details)
+
+    assert 'describe_images' in str(excinfo.value)

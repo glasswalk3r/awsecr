@@ -1,7 +1,9 @@
 """ECR image module."""
 from typing import List, Dict, Union, Literal
 from mypy_boto3_ecr.type_defs import ImageDetailTypeDef
-import sys
+
+from awsecr.exception import InvalidPayload
+
 
 class ECRImage():
     def __init__(self,
@@ -16,13 +18,12 @@ class ECRImage():
         try:
             self.name: str = f"{registry}/{repository}:{image['imageTags'][0]}"
             self.status: str = image['imageScanStatus']['status']
-            summary = image['imageScanFindingsSummary']
-            findings = summary['findingSeverityCounts']
             self.size: int = image['imageSizeInBytes']
             self.pushed_at: str = str(image['imagePushedAt'])
+            summary = image['imageScanFindingsSummary']
+            findings = summary['findingSeverityCounts']
         except KeyError as e:
-            print(f'Missing image scanning {e} information', sys.stderr)
-            findings = {'UNDEFINED': 0}
+            raise InvalidPayload(str(e), 'describe_images')
 
         self.vulnerabilities: int = sum(findings.values())
 
