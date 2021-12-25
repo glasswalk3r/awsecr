@@ -8,13 +8,10 @@ import base64
 from collections import deque
 import mypy_boto3_sts
 import mypy_boto3_ecr
-from botocore.exceptions import ClientError
 
-from awsecr.image import ECRImage
 from awsecr.exception import (
     InvalidPayload,
-    MissingAWSEnvVar,
-    ECRClientException
+    MissingAWSEnvVar
 )
 
 
@@ -74,37 +71,6 @@ def login_ecr(account_id: str,
         reauth=True
     )
     return tuple([resp, docker_client])
-
-
-def list_ecr(account_id: str,
-             repository: str,
-             region: str = None) -> List[List[str]]:
-    ecr = boto3.client('ecr')
-
-    if region is None:
-        region = ecr.meta.region_name
-
-    images: Deque[List[str]]
-    images = deque()
-    registry = registry_fqdn(account_id=account_id, region=region)
-
-    try:
-        resp = ecr.describe_images(registryId=account_id,
-                                   repositoryName=repository)
-
-        for image in resp['imageDetails']:
-            images.append(ECRImage(registry, repository, image).to_list())
-    except ValueError as e:
-        raise InvalidPayload(missing_key=str(e),
-                             api_method='get_authorization_token')
-    except ClientError as e:
-        raise ECRClientException(error_code=e.response['Error']['Code'],
-                                 message=str(e))
-
-    result = list(images)
-    result.sort()
-    result.insert(0, ECRImage.fields())
-    return result
 
 
 def image_push(account_id: str, repository: str, region: str,
