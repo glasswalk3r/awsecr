@@ -50,12 +50,11 @@ the repository.')
 
         if args.list:
             account_id, user, _ = account_info()
-            ecr_client = boto3.client('ecr')
 
             try:
                 images = list_ecr(account_id=account_id,
                                   repository=args.list,
-                                  ecr_client=ecr_client)
+                                  ecr_client=boto3.client('ecr'))
             except ECRClientException as e:
                 _die(str(e))
             except Exception as e:
