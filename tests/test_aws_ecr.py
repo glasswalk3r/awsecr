@@ -17,10 +17,7 @@ from awsecr.exception import (
     InvalidPayload,
     BaseException,
 )
-
-
-class AwsEcrMetaStub:
-    region_name = 'us-east-1'
+from .shared import AwsEcrMetaStub
 
 
 class AwsEcrStub:
