@@ -9,11 +9,6 @@ from awsecr.exception import InvalidPayload
 from .shared import AwsEcrMetaStub
 
 
-@pytest.fixture
-def registry_id():
-    return '012345678910'
-
-
 @pytest.fixture(scope='module')
 def now():
     return datetime.datetime.now()

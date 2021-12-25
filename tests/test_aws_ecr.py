@@ -46,11 +46,11 @@ class AwsEcrStub:
 
 
 class AwsStsStub:
-    account = '012345678910'
     user = 'foobar'
     meta = AwsEcrMetaStub()
 
-    def __init__(self):
+    def __init__(self, account):
+        self.account = account
         email = 'arfreitas@cpan.org'
         arn = f'arn:aws:sts::{self.account}:assumed-role/{self.user}/{email}'
         self.payload = {
@@ -78,8 +78,8 @@ class AwsStsStub:
 
 
 @pytest.fixture
-def broken_sts_client():
-    client = AwsStsStub()
+def broken_sts_client(registry_id):
+    client = AwsStsStub(registry_id)
     client._break()
     return client
 
@@ -91,10 +91,11 @@ def broken_ecr_client():
     return client
 
 
-def test_aws_account_id():
-    result = account_info(client=AwsStsStub())
+def test_aws_account_id(registry_id):
+    client = AwsStsStub(registry_id)
+    result = account_info(client=client)
     assert result.__class__.__name__ == 'tuple'
-    assert result[0] == AwsStsStub.account
+    assert result[0] == client.account
     assert result[1] == AwsStsStub.user
 
 
@@ -144,21 +145,21 @@ def test__extract_credentials():
     assert credentials.__class__.__name__ == 'tuple'
 
 
-def test__ecr_token():
-    result = _ecr_token('012345678910', AwsEcrStub())
+def test__ecr_token(registry_id):
+    result = _ecr_token(registry_id, AwsEcrStub())
     assert result.__class__.__name__ == 'tuple'
     assert result[0] == AwsEcrStub.ecr_token()
     assert result[1] == AwsEcrMetaStub.region_name
 
 
-def test__ecr_token_with_region():
+def test__ecr_token_with_region(registry_id):
     expected = 'foobar'
-    result = _ecr_token('012345678910', AwsEcrStub(), expected)
+    result = _ecr_token(registry_id, AwsEcrStub(), expected)
     assert result[1] == expected
 
 
-def test__ecr_token_with_exception(broken_ecr_client):
+def test__ecr_token_with_exception(broken_ecr_client, registry_id):
     with pytest.raises(InvalidPayload) as excinfo:
-        _ecr_token('012345678910', broken_ecr_client)
+        _ecr_token(registry_id, broken_ecr_client)
 
     assert 'get_authorization_token' in str(excinfo.value)
