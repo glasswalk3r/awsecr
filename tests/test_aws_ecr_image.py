@@ -154,6 +154,9 @@ json'
     def describe_images(self, registryId: str, repositoryName: str):
         return self._payload
 
+    def break_payload(self):
+        self._payload['imageDetails'][0].pop('imageSizeInBytes')
+
 
 def test_ecr_image_class():
     assert inspect.isclass(ECRImage)
@@ -242,5 +245,12 @@ def test_list_ecr(registry_id):
     assert result == expected
 
 
-def test_list_ecr_client_exception():
-    pass
+def test_list_ecr_client_exception(registry_id):
+    client = AWSECRClientStub(registry_id)
+    client.break_payload()
+
+    with pytest.raises(InvalidPayload) as excinfo:
+        list_ecr(account_id=registry_id, repository='nodejs',
+                 ecr_client=client)
+
+    assert 'describe_images' in str(excinfo.value)
