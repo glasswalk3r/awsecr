@@ -39,6 +39,7 @@ class AWSECRClientStub:
     artifact_media_type = 'application/vnd.docker.container.image.v1+json'
     manifest_media_type = 'application/vnd.docker.distribution.manifest.v2+\
 json'
+    only_repository = 'nodejs'
 
     def __init__(self, registry_id):
         self.registry_id = registry_id
@@ -76,7 +77,7 @@ json'
                     'imageSizeInBytes': 30007575,
                     'imageTags': ['12-0.1.1'],
                     'registryId': self.registry_id,
-                    'repositoryName': 'nodejs'
+                    'repositoryName': self.only_repository
                 },
                 {
                     'artifactMediaType': self.artifact_media_type,
@@ -99,7 +100,7 @@ json'
                     'imageSizeInBytes': 41711442,
                     'imageTags': ['14-0.1.0'],
                     'registryId': self.registry_id,
-                    'repositoryName': 'nodejs'
+                    'repositoryName': self.only_repository
                 },
                 {
                     'artifactMediaType': self.artifact_media_type,
@@ -122,7 +123,7 @@ json'
                     'imageSizeInBytes': 41752369,
                     'imageTags': ['14-0.1.1'],
                     'registryId': self.registry_id,
-                    'repositoryName': 'nodejs'
+                    'repositoryName': self.only_repository
                 },
                 {
                     'artifactMediaType': self.artifact_media_type,
@@ -145,7 +146,7 @@ json'
                     'imageSizeInBytes': 30008240,
                     'imageTags': ['12-0.1.0'],
                     'registryId': self.registry_id,
-                    'repositoryName': 'nodejs'
+                    'repositoryName': self.only_repository
                 }
             ]
         }
@@ -239,3 +240,7 @@ def test_list_ecr(registry_id):
     ]
 
     assert result == expected
+
+
+def test_list_ecr_client_exception():
+    pass
