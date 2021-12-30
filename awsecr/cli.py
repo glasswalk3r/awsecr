@@ -2,8 +2,10 @@
 import argparse
 import sys
 from terminaltables import SingleTable
+import boto3
 
-from awsecr.awsecr import account_info, ECRRepos, list_ecr, image_push
+from awsecr.awsecr import account_info, ECRRepos, image_push
+from awsecr.image import list_ecr
 from awsecr.exception import ECRClientException
 
 
@@ -50,7 +52,9 @@ the repository.')
             account_id, user, _ = account_info()
 
             try:
-                images = list_ecr(account_id=account_id, repository=args.list)
+                images = list_ecr(account_id=account_id,
+                                  repository=args.list,
+                                  ecr_client=boto3.client('ecr'))
             except ECRClientException as e:
                 _die(str(e))
             except Exception as e:

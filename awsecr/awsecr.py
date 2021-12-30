@@ -1,20 +1,17 @@
 """Main module."""
 
 import boto3
-from typing import Tuple, List, Generator, Dict, Deque, Any, Union, Literal
+from typing import Tuple, List, Generator, Dict, Deque, Any
 import os
 import docker
 import base64
 from collections import deque
-from mypy_boto3_ecr.type_defs import ImageDetailTypeDef
 import mypy_boto3_sts
 import mypy_boto3_ecr
-import sys
-from botocore.exceptions import ClientError
+
 from awsecr.exception import (
     InvalidPayload,
-    MissingAWSEnvVar,
-    ECRClientException
+    MissingAWSEnvVar
 )
 
 
@@ -74,71 +71,6 @@ def login_ecr(account_id: str,
         reauth=True
     )
     return tuple([resp, docker_client])
-
-
-class ECRImage():
-    def __init__(self,
-                 registry: str,
-                 repository: str,
-                 image: ImageDetailTypeDef):
-
-        findings: Dict[Union[Literal['CRITICAL'], Literal['HIGH'],
-                             Literal['INFORMATIONAL'], Literal['LOW'],
-                             Literal['MEDIUM'], Literal['UNDEFINED']], int]
-
-        try:
-            self.name: str = f"{registry}/{repository}:{image['imageTags'][0]}"
-            self.status: str = image['imageScanStatus']['status']
-            summary = image['imageScanFindingsSummary']
-            findings = summary['findingSeverityCounts']
-            self.size: int = image['imageSizeInBytes']
-            self.pushed_at: str = str(image['imagePushedAt'])
-        except KeyError as e:
-            print(f'Missing image scanning {e} information', sys.stderr)
-            findings = {'UNDEFINED': 0}
-
-        self.vulnerabilities: int = sum(findings.values())
-
-    def to_list(self) -> List[str]:
-        return [self.name, self.status, '{:.4n}'.format(self.size_in_mb()),
-                self.pushed_at, str(self.vulnerabilities)]
-
-    def size_in_mb(self):
-        return self.size / (1024 * 1000)
-
-    @staticmethod
-    def fields() -> List[str]:
-        return ['Image', 'Scan status', 'Size (MB)', 'Pushed at',
-                'Vulnerabilities']
-
-
-def list_ecr(account_id: str,
-             repository: str,
-             region: str = None) -> List[List[str]]:
-    ecr = boto3.client('ecr')
-
-    if region is None:
-        region = ecr.meta.region_name
-
-    images: Deque[List[str]]
-    images = deque()
-    images.append(ECRImage.fields())
-    registry = registry_fqdn(account_id=account_id, region=region)
-
-    try:
-        resp = ecr.describe_images(registryId=account_id,
-                                   repositoryName=repository)
-
-        for image in resp['imageDetails']:
-            images.append(ECRImage(registry, repository, image).to_list())
-    except ValueError as e:
-        raise InvalidPayload(missing_key=str(e),
-                             api_method='get_authorization_token')
-    except ClientError as e:
-        raise ECRClientException(error_code=e.response['Error']['Code'],
-                                 message=str(e))
-
-    return list(images)
 
 
 def image_push(account_id: str, repository: str, region: str,
