@@ -38,13 +38,20 @@ class ECRRepos:
         resp = self.client.describe_repositories()
         all: Deque[List[str]] = deque()
         all.append(ECRRepo.fields())
+        temp = deque()
 
         try:
             for repo in resp['repositories']:
-                all.append(ECRRepo(repo).to_list())
+                temp.append(ECRRepo(repo))
         except KeyError as e:
             raise InvalidPayload(missing_key=str(e),
                                  api_method='describe_repositories')
+
+        intermediary = list(temp)
+        intermediary.sort()
+
+        for repo in intermediary:
+            all.append(repo.to_list())
 
         return all
 
@@ -68,6 +75,15 @@ class ECRRepo:
         except KeyError as e:
             raise InvalidPayload(missing_key=str(e),
                                  api_method='describe_repositories')
+
+    def __lt__(self, other):
+        return self.name < other.name
+
+    def __gt__(self, other):
+        return self.name > other.name
+
+    def __str__(self) -> str:
+        return str(self.to_list())
 
     def to_list(self) -> List[str]:
         """Represent the instance data as a list of strings.

@@ -47,12 +47,15 @@ class AWSECRClientStub:
         result = deque()
         result.append(['Name', 'URI', 'Tag Mutability', 'Scan on push?'])
 
-        for repo in self._data['repositories']:
+        # "mannually" sorting
+        isc = 'imageScanningConfiguration'
+
+        for i in [2, 0, 1]:
             result.append([
-                repo['repositoryName'],
-                repo['repositoryUri'],
-                repo['imageTagMutability'],
-                repo['imageScanningConfiguration']['scanOnPush']
+                self._data['repositories'][i]['repositoryName'],
+                self._data['repositories'][i]['repositoryUri'],
+                self._data['repositories'][i]['imageTagMutability'],
+                self._data['repositories'][i][isc]['scanOnPush']
             ])
 
         return result
