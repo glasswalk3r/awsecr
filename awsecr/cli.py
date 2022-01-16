@@ -4,7 +4,8 @@ import sys
 from terminaltables import SingleTable
 import boto3
 
-from awsecr.awsecr import account_info, ECRRepos, image_push
+from awsecr.awsecr import account_info, image_push
+from awsecr.repository import ECRRepos
 from awsecr.image import list_ecr
 from awsecr.exception import ECRClientException
 

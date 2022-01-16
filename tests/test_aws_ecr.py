@@ -6,12 +6,12 @@ from datetime import datetime
 from mypy_boto3_sts.type_defs import GetCallerIdentityResponseTypeDef
 
 from awsecr.awsecr import (
-    ECRRepos,
     account_info,
     registry_fqdn,
     _extract_credentials,
     _ecr_token
 )
+from awsecr.repository import ECRRepos
 from awsecr.exception import (
     MissingAWSEnvVar,
     InvalidPayload,

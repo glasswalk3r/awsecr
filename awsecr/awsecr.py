@@ -1,17 +1,13 @@
 """Main module."""
-
 import boto3
-from typing import Tuple, List, Generator, Dict, Deque, Any
-import os
+from typing import Tuple, Generator, Any
 import docker
 import base64
-from collections import deque
 import mypy_boto3_sts
 import mypy_boto3_ecr
 
 from awsecr.exception import (
-    InvalidPayload,
-    MissingAWSEnvVar
+    InvalidPayload
 )
 
 
@@ -95,51 +91,3 @@ def image_push(account_id: str, repository: str, region: str,
                     yield f"layer: {line['id']}, progress: {line['progress']}"
             else:
                 yield '.'
-
-
-class ECRRepos:
-    """List allowed ECR repositories from default registry."""
-    def __init__(self, client=boto3.client('ecr')) -> None:
-
-        if 'AWS_PROFILE' not in os.environ:
-            secret = 'AWS_SECRET_ACCESS_KEY' in os.environ
-            access = 'AWS_ACCESS_KEY_ID' in os.environ
-
-            if not (secret and access):
-                raise MissingAWSEnvVar()
-
-        self.client = client
-
-    def list_repositories(self) -> Deque[List[str]]:
-        resp = self.client.describe_repositories()
-        all: Deque[List[str]] = deque()
-        all.append(ECRRepo.fields())
-
-        try:
-            for repo in resp['repositories']:
-                all.append(ECRRepo(repo).to_list())
-        except KeyError as e:
-            raise InvalidPayload(missing_key=str(e),
-                                 api_method='describe_repositories')
-
-        return all
-
-
-class ECRRepo:
-    """Represent a single ECR repository."""
-    def __init__(self, raw: Dict[str, Any]):
-        try:
-            self.name = raw['repositoryName']
-            self.uri = raw['repositoryUri']
-            self.tag_mutability = raw['imageTagMutability']
-            self.scan_on_push = raw['imageScanningConfiguration']['scanOnPush']
-        except KeyError as e:
-            raise InvalidPayload(missing_key=str(e),
-                                 api_method='describe_repositories')
-
-    def to_list(self) -> List[str]:
-        return [self.name, self.uri, self.tag_mutability, self.scan_on_push]
-
-    @staticmethod
-    def fields() -> List[str]:
-        return ['Name', 'URI', 'Tag Mutability', 'Scan on push?']
