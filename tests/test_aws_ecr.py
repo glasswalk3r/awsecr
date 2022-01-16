@@ -145,3 +145,13 @@ def test__ecr_token_with_exception(broken_ecr_client, registry_id):
         _ecr_token(registry_id, broken_ecr_client)
 
     assert 'get_authorization_token' in str(excinfo.value)
+
+
+@pytest.mark.skip(reason='To be implemented together with stub')
+def test_login_ecr():
+    pass
+
+
+@pytest.mark.skip(reason='To be implemented together with stub')
+def test_image_push():
+    pass

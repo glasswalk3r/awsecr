@@ -64,19 +64,23 @@ def new_repos(monkeypatch):
     return ECRRepos()
 
 
+def test_ecr_repos_no_aws_cfg(monkeypatch):
+    monkeypatch.delenv("AWS_PROFILE", False)
+    monkeypatch.delenv("AWS_SECRET_ACCESS_KEY", False)
+    monkeypatch.delenv("AWS_ACCESS_KEY_ID", False)
+
+    with pytest.raises(MissingAWSEnvVar) as excinfo:
+        ECRRepos()
+
+    assert 'AWS environment' in str(excinfo.value)
+
+
 def test_ecr_repos(new_repos):
     assert inspect.isclass(ECRRepos)
     methods = tuple(['list_repositories'])
 
     for method in methods:
         assert inspect.ismethod(getattr(new_repos, method))
-
-
-def test_ecr_repos_no_aws_cfg():
-    with pytest.raises(MissingAWSEnvVar) as excinfo:
-        ECRRepos()
-
-    assert 'AWS environment' in str(excinfo.value)
 
 
 def test_ecr_repos_list_repositories(new_repos):
