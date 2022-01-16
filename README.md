@@ -17,29 +17,35 @@ See `TODO.txt` for next planned features.
 
 ## Samples outputs
 
+The output samples will *roughly* look like the ones generated at the terminal
+by the CLI. Expect to have better output in the terminal.
+
 Listing repositories available:
 
 ```
 $ awsecr repos
-┌ All ECR repositories ──────────────┬─────────────────────────────────────────────────────────────────────────────────┬────────────────┬───────────────┐
+┌ All ECR repositories ────────────┬───────────────────────────────────────────────────────────────────────────────────┬─────────────┐
 │ Name                               │ URI                                                                             │ Tag Mutability │ Scan on push? │
-├────────────────────────────────────┼─────────────────────────────────────────────────────────────────────────────────┼────────────────┼───────────────┤
+├───────────────────────────────┼───────────────────────────────────────────────────────────────────────────────────┼────────────┤
 │ nodejs                             │ 012345678910.dkr.ecr.us-east-1.amazonaws.com/nodejs                             │ IMMUTABLE      │ True          │
 │ spark-py                           │ 012345678910.dkr.ecr.us-east-1.amazonaws.com/spark-py                           │ MUTABLE        │ False         │
 │ hive-metastore                     │ 012345678910.dkr.ecr.us-east-1.amazonaws.com/hive-metastore                     │ IMMUTABLE      │ True          │
-└────────────────────────────────────┴─────────────────────────────────────────────────────────────────────────────────┴────────────────┴───────────────┘
+└──────────────────────────────┴────────────────────────────────────────────────────────────────────────────────────┴────────────┘
 ```
 
 Listing images from a repository:
 
 ```
-┌ Docker images at api-foobar123 ──────────────────────────────────┬─────────────┬───────────┬───────────────────────────┬─────────────────┐
-│ Image                                                            │ Scan status │ Size (MB) │ Pushed at                 │ Vulnerabilities │
-├──────────────────────────────────────────────────────────────────┼─────────────┼───────────┼───────────────────────────┼─────────────────┤
-│ 012345678910.dkr.ecr.us-east-1.amazonaws.com/api-foobar123:1.3.6 │ COMPLETE    │ 205.1     │ 2021-12-09 18:06:20-03:00 │ 1               │
-│ 012345678910.dkr.ecr.us-east-1.amazonaws.com/api-foobar123:1.3.5 │ COMPLETE    │ 133.8     │ 2021-12-09 15:42:28-03:00 │ 1               │
-└──────────────────────────────────────────────────────────────────┴─────────────┴───────────┴───────────────────────────┴─────────────────┘
+┌ Docker images at api-foobar123  ────────────────────────────┬───────────┬───────────┬───────────────────────┬─────────────────┐
+│ Image                                                            │ Scan status │ Size (MB)   │ Pushed at                 │ Vulnerabilities    │
+├────────────────────────────────────────────────────────┼───────────┼───────────┼───────────────────────┼─────────────────┤
+│ 012345678910.dkr.ecr.us-east-1.amazonaws.com/api-foobar123:1.3.5 │ COMPLETE    │ 205.1       │ 2021-12-09 18:06:20-03:00 │ 1/10/118/51/274/22 │
+│ 012345678910.dkr.ecr.us-east-1.amazonaws.com/api-foobar123:1.3.6 │ COMPLETE    │ 133.8       │ 2021-12-09 15:42:28-03:00 │ 1/10/118/51/274/22 │
+└────────────────────────────────────────────────────────────────────┴───────────┴───────────────────────┴─────────────────┘
 ```
+
+Except that the *Vulnerabilities* column will have <font color="#AA0000">1</font>/<font color="#FF5555">10</font>/<font color="#AA5500">118</font>/<font color="#FFFF55">51</font>/<font color="#55FF55">274</font>/<font color="#00AA00">22</font> as values in
+the terminal. Colors goes from highest severity to lesser, left to right.
 
 ## How to install
 
