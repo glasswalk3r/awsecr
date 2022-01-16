@@ -11,7 +11,6 @@ from awsecr.awsecr import (
     _extract_credentials,
     _ecr_token
 )
-from awsecr.repository import ECRRepos
 from awsecr.exception import (
     MissingAWSEnvVar,
     InvalidPayload,
@@ -113,23 +112,6 @@ def test_ecr_repos_exceptions():
     assert issubclass(MissingAWSEnvVar, BaseException)
     assert inspect.isclass(InvalidPayload)
     assert issubclass(InvalidPayload, BaseException)
-
-
-def test_ecr_repos(monkeypatch):
-    monkeypatch.setenv("AWS_PROFILE", "dev")
-    assert inspect.isclass(ECRRepos)
-    instance = ECRRepos()
-    methods = tuple(['list_repositories'])
-
-    for method in methods:
-        assert inspect.ismethod(getattr(instance, method))
-
-
-def test_ecr_repos_no_aws_cfg():
-    with pytest.raises(MissingAWSEnvVar) as excinfo:
-        ECRRepos()
-
-    assert 'AWS environment' in str(excinfo.value)
 
 
 def test_registry_fqdn():
