@@ -27,6 +27,14 @@ def account_info(
 
 
 def registry_fqdn(account_id: str, region: str) -> str:
+    """Generate a ECR registry FQDN.
+
+    Arguments:
+    account_id -- the AWS account ID
+    region -- the AWS region of the ECR registry
+
+    Returns the FQDN as a string.
+    """
     return f'{account_id}.dkr.ecr.{region}.amazonaws.com'
 
 
