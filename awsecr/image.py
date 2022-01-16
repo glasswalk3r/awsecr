@@ -52,7 +52,7 @@ class ECRImage():
 
     @staticmethod
     def fields() -> List[str]:
-        """Return all the fields names of a instance as a list."""
+        """Return all the fields names of a instance as a list of strings."""
         return ['Image', 'Scan status', 'Size (MB)', 'Pushed at',
                 'Vulnerabilities']
 
