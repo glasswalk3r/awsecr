@@ -111,6 +111,7 @@ def list_ecr(account_id: str,
         raise InvalidPayload(missing_key=str(e),
                              api_method='get_authorization_token')
     except ClientError as e:
+        print(e)
         raise ECRClientException(error_code=e.response['Error']['Code'],
                                  message=str(e))
 
