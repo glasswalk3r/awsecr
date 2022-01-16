@@ -69,6 +69,16 @@ def list_ecr(account_id: str,
              repository: str,
              ecr_client,
              region: str = None) -> List[List[str]]:
+    """List all ECR images from a repository.
+
+    Arguments:
+
+    account_id -- the AWS account ID
+    repository -- the name of the ECR repository
+    ecr_client -- the AWS ECR client
+    region -- the AWS region where the repository is. Optional, defaults to the
+    default region of the given ecr_client.
+    """
 
     if region is None:
         region = ecr_client.meta.region_name
