@@ -171,13 +171,13 @@ def test_ecr_image_methods(new_instance):
 
 
 def test_ecr_image_attributes(new_instance, now):
-    for attribute in 'name status size pushed_at vulnerabilities'.split():
+    for attribute in 'name status size pushed_at findings'.split():
         assert hasattr(new_instance, attribute)
 
     assert new_instance.status == 'COMPLETE'
     assert new_instance.size == 62380145
     assert new_instance.pushed_at == str(now)
-    assert new_instance.vulnerabilities == 1
+    assert new_instance.findings == {'UNDEFINED': 1}
 
 
 def test_ecr_image_size_in_mb(new_instance):
@@ -190,7 +190,7 @@ def test_ecr_image_to_list(new_instance, now):
         'COMPLETE',
         '60.92',
         str(now),
-        '1'
+        {'UNDEFINED': 1}
     ]
 
 
@@ -217,7 +217,7 @@ def test_ecr_image_cmp(registry_id):
 
 
 def test_ecr_image_exception(image_details):
-    image_details.pop('imageScanFindingsSummary')
+    image_details.pop('imageSizeInBytes')
 
     with pytest.raises(InvalidPayload) as excinfo:
         ECRImage('0123', 'foobar', image_details)
@@ -233,13 +233,13 @@ def test_list_ecr(registry_id):
     expected = [
         ['Image', 'Scan status', 'Size (MB)', 'Pushed at', 'Vulnerabilities'],
         ['012345678910.dkr.ecr.us-east-1.amazonaws.com/nodejs:12-0.1.0',
-         'COMPLETE', '29.3', '2021-12-01 17:27:27-03:00', '1'],
+         'COMPLETE', '29.3', '2021-12-01 17:27:27-03:00', {'LOW': 1}],
         ['012345678910.dkr.ecr.us-east-1.amazonaws.com/nodejs:12-0.1.1',
-         'COMPLETE', '29.3', '2021-12-15 18:54:58-03:00', '1'],
+         'COMPLETE', '29.3', '2021-12-15 18:54:58-03:00', {'LOW': 1}],
         ['012345678910.dkr.ecr.us-east-1.amazonaws.com/nodejs:14-0.1.0',
-         'COMPLETE', '40.73', '2021-12-01 18:26:46-03:00', '1'],
+         'COMPLETE', '40.73', '2021-12-01 18:26:46-03:00', {'MEDIUM': 1}],
         ['012345678910.dkr.ecr.us-east-1.amazonaws.com/nodejs:14-0.1.1',
-         'COMPLETE', '40.77', '2021-12-15 19:09:13-03:00', '1'],
+         'COMPLETE', '40.77', '2021-12-15 19:09:13-03:00', {'LOW': 1}],
     ]
 
     assert result == expected

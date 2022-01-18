@@ -3,9 +3,12 @@ import argparse
 import sys
 from terminaltables import SingleTable
 import boto3
+from colorama import Fore, Style
+from collections import defaultdict
 
-from awsecr.awsecr import account_info, ECRRepos, image_push
-from awsecr.image import list_ecr
+from awsecr.awsecr import account_info, image_push
+from awsecr.repository import ECRRepos
+from awsecr.image import list_ecr, Vulnerabilities
 from awsecr.exception import ECRClientException
 
 
@@ -36,7 +39,8 @@ ECR to manage Docker images.',
         '--list',
         metavar=metavar,
         help='Sub operation for "image" operation. List all images from the \
-repository.')
+repository. Uses ANSI colors to match vulnerabilities severities, going from \
+CRITICAL (red) to UNDEFINED (green)')
 
     group.add_argument(
         '--push',
@@ -54,7 +58,8 @@ the repository.')
             try:
                 images = list_ecr(account_id=account_id,
                                   repository=args.list,
-                                  ecr_client=boto3.client('ecr'))
+                                  ecr_client=boto3.client('ecr'),
+                                  ansi=_ansi_vulnerabilities)
             except ECRClientException as e:
                 _die(str(e))
             except Exception as e:
@@ -91,6 +96,12 @@ the repository.')
             return 1
 
     if args.operation == 'repos':
+        
+        if args.push or args.list:
+            print('The repos operations does not support any argument!\n', file=sys.stderr)
+            parser.print_help()
+            return 1
+
         repos = ECRRepos()
         table = SingleTable(repos.list_repositories(),
                             title=' All ECR repositories ')
@@ -99,6 +110,29 @@ the repository.')
     else:
         parser.print_help()
         return 1
+
+
+def _ansi_vulnerabilities(current: Vulnerabilities, scan_status: str):
+    """
+    Change the vulnerabilities scan result to a string using ANSI terminal
+    colors to classify the severity by color.
+    """
+    if scan_status == 'FAILED':
+        return f'{Fore.RED}{current["UNDEFINED"]}{Style.RESET_ALL}'
+
+    findings = defaultdict(int)
+
+    for k in current:
+        findings[k] += current[k]
+
+    return '/'.join([
+        f'{Fore.RED}{findings["CRITICAL"]}{Style.RESET_ALL}',
+        f'{Fore.LIGHTRED_EX}{findings["HIGH"]}{Style.RESET_ALL}',
+        f'{Fore.YELLOW}{findings["MEDIUM"]}{Style.RESET_ALL}',
+        f'{Fore.LIGHTYELLOW_EX}{findings["LOW"]}{Style.RESET_ALL}',
+        f'{Fore.LIGHTGREEN_EX}{findings["INFORMATIONAL"]}{Style.RESET_ALL}',
+        f'{Fore.GREEN}{findings["UNDEFINED"]}{Style.RESET_ALL}',
+        ])
 
 
 if __name__ == "__main__":

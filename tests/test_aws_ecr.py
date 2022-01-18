@@ -1,22 +1,16 @@
 """Tests for `awsecr` package."""
 import pytest
-import inspect
 import base64
 from datetime import datetime
 from mypy_boto3_sts.type_defs import GetCallerIdentityResponseTypeDef
 
 from awsecr.awsecr import (
-    ECRRepos,
     account_info,
     registry_fqdn,
     _extract_credentials,
     _ecr_token
 )
-from awsecr.exception import (
-    MissingAWSEnvVar,
-    InvalidPayload,
-    BaseException,
-)
+from awsecr.exception import InvalidPayload
 from .shared import AwsEcrMetaStub
 
 
@@ -106,32 +100,6 @@ def test_aws_account_id_exception(broken_sts_client):
     assert 'Account' in str(excinfo.value)
 
 
-def test_ecr_repos_exceptions():
-    assert inspect.isclass(BaseException)
-    assert issubclass(BaseException, Exception)
-    assert inspect.isclass(MissingAWSEnvVar)
-    assert issubclass(MissingAWSEnvVar, BaseException)
-    assert inspect.isclass(InvalidPayload)
-    assert issubclass(InvalidPayload, BaseException)
-
-
-def test_ecr_repos(monkeypatch):
-    monkeypatch.setenv("AWS_PROFILE", "dev")
-    assert inspect.isclass(ECRRepos)
-    instance = ECRRepos()
-    methods = tuple(['list_repositories'])
-
-    for method in methods:
-        assert inspect.ismethod(getattr(instance, method))
-
-
-def test_ecr_repos_no_aws_cfg():
-    with pytest.raises(MissingAWSEnvVar) as excinfo:
-        ECRRepos()
-
-    assert 'AWS environment' in str(excinfo.value)
-
-
 def test_registry_fqdn():
     account_id = 'foo'
     region = 'bar'
@@ -163,3 +131,13 @@ def test__ecr_token_with_exception(broken_ecr_client, registry_id):
         _ecr_token(registry_id, broken_ecr_client)
 
     assert 'get_authorization_token' in str(excinfo.value)
+
+
+@pytest.mark.skip(reason='To be implemented together with stub')
+def test_login_ecr():
+    pass
+
+
+@pytest.mark.skip(reason='To be implemented together with stub')
+def test_image_push():
+    pass

@@ -8,7 +8,7 @@ with open('README.md') as readme_file:
     readme = readme_file.read()
 
 requirements = ['boto3==1.20.16', 'docker==5.0.3', 'terminaltables==3.1.0',
-                'boto3-stubs[ecr,sts]']
+                'colorama==0.4.4', 'boto3-stubs[ecr,sts]']
 setup_requirements = ['pytest-runner', ]
 test_requirements = ['pytest>=3', ]
 
@@ -17,7 +17,7 @@ setup(
     author_email='arfreitas@cpan.org',
     python_requires='>=3.8',
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
         'Natural Language :: English',
         'Programming Language :: Python :: 3',

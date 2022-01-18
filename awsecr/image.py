@@ -1,11 +1,15 @@
 """ECR image module."""
-from typing import List, Dict, Union, Literal, Deque
+from typing import List, Dict, Union, Literal, Deque, Callable
 from mypy_boto3_ecr.type_defs import ImageDetailTypeDef
 from botocore.exceptions import ClientError
 from collections import deque
 
 from awsecr.exception import InvalidPayload, ECRClientException
 from awsecr.awsecr import registry_fqdn
+
+Vulnerabilities = Dict[Union[Literal['CRITICAL'], Literal['HIGH'],
+                             Literal['INFORMATIONAL'], Literal['LOW'],
+                             Literal['MEDIUM'], Literal['UNDEFINED']], int]
 
 
 class ECRImage():
@@ -24,9 +28,7 @@ class ECRImage():
         image -- the result of boto3 ECR client describe_images method
         """
 
-        findings: Dict[Union[Literal['CRITICAL'], Literal['HIGH'],
-                             Literal['INFORMATIONAL'], Literal['LOW'],
-                             Literal['MEDIUM'], Literal['UNDEFINED']], int]
+        self.findings: Vulnerabilities
 
         try:
             self.name: str = image['imageTags'][0]
@@ -34,17 +36,19 @@ class ECRImage():
             self.status: str = image['imageScanStatus']['status']
             self.size: int = image['imageSizeInBytes']
             self.pushed_at: str = str(image['imagePushedAt'])
-            summary = image['imageScanFindingsSummary']
-            findings = summary['findingSeverityCounts']
+
+            if 'imageScanFindingsSummary' not in image:
+                self.findings = {'UNDEFINED': -1}
+            else:
+                summary = image['imageScanFindingsSummary']
+                self.findings = summary['findingSeverityCounts']
         except KeyError as e:
             raise InvalidPayload(str(e), self.ecr_client_creator)
-
-        self.vulnerabilities: int = sum(findings.values())
 
     def to_list(self) -> List[str]:
         """Convert a list attributes to a list of strings."""
         return [self.fullname, self.status, '{:.4n}'.format(self.size_in_mb()),
-                self.pushed_at, str(self.vulnerabilities)]
+                self.pushed_at, self.findings]
 
     def size_in_mb(self):
         """Convert the image size to MB."""
@@ -52,7 +56,7 @@ class ECRImage():
 
     @staticmethod
     def fields() -> List[str]:
-        """Return all the fields names of a instance as a list."""
+        """Return all the fields names of a instance as a list of strings."""
         return ['Image', 'Scan status', 'Size (MB)', 'Pushed at',
                 'Vulnerabilities']
 
@@ -68,7 +72,21 @@ class ECRImage():
 def list_ecr(account_id: str,
              repository: str,
              ecr_client,
-             region: str = None) -> List[List[str]]:
+             region: str = None,
+             ansi: Callable = None) -> List[List[str]]:
+    """List all ECR images from a repository.
+
+    Arguments:
+
+    account_id -- the AWS account ID
+    repository -- the name of the ECR repository
+    ecr_client -- the AWS ECR client
+    region -- the AWS region where the repository is. Optional, defaults to the
+    default region of the given ecr_client.
+    ansi -- Optional, a callable to be used to format the vulnerabilities scan
+    result and return a string. The callable should expect as parameters a dict
+    as ECRImage.findings and a string as ECRImage.status.
+    """
 
     if region is None:
         region = ecr_client.meta.region_name
@@ -81,12 +99,19 @@ def list_ecr(account_id: str,
         resp = ecr_client.describe_images(registryId=account_id,
                                           repositoryName=repository)
 
-        for image in resp['imageDetails']:
-            images.append(ECRImage(registry, repository, image).to_list())
+        if ansi:
+            for image in resp['imageDetails']:
+                instance = ECRImage(registry, repository, image)
+                instance.findings = ansi(instance.findings, instance.status)
+                images.append(instance.to_list())
+        else:
+            for image in resp['imageDetails']:
+                images.append(ECRImage(registry, repository, image).to_list())
     except ValueError as e:
         raise InvalidPayload(missing_key=str(e),
                              api_method='get_authorization_token')
     except ClientError as e:
+        print(e)
         raise ECRClientException(error_code=e.response['Error']['Code'],
                                  message=str(e))
 
