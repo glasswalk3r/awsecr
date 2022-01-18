@@ -44,8 +44,12 @@ Listing images from a repository:
 └────────────────────────────────────────────────────────────────────┴───────────┴───────────────────────┴─────────────────┘
 ```
 
-Except that the *Vulnerabilities* column will have <font color="#AA0000">1</font>/<font color="#FF5555">10</font>/<font color="#AA5500">118</font>/<font color="#FFFF55">51</font>/<font color="#55FF55">274</font>/<font color="#00AA00">22</font> as values in
-the terminal. Colors goes from highest severity to lesser, left to right.
+Except that the *Vulnerabilities* column will have
+
+<div><font color="#AA0000">1</font>/<font color="#FF5555">10</font>/<font color="#AA5500">118</font>/<font color="#FFFF55">51</font>/<font color="#55FF55">274</font>/<font color="#00AA00">22</font></div>
+
+as values in the terminal. Colors goes from highest severity to lesser, left to
+right.
 
 ## How to install
 
