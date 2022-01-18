@@ -96,6 +96,12 @@ the repository.')
             return 1
 
     if args.operation == 'repos':
+        
+        if args.push or args.list:
+            print('The repos operations does not support any argument!\n', file=sys.stderr)
+            parser.print_help()
+            return 1
+
         repos = ECRRepos()
         table = SingleTable(repos.list_repositories(),
                             title=' All ECR repositories ')
