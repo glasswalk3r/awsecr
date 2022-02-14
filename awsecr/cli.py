@@ -83,7 +83,10 @@ the repository.')
                                      repository=args.push,
                                      region=region,
                                      current_image=args.image):
-                print(status, end='', flush=True)
+                if status == '.':
+                    print(status, end='', flush=True)
+                else:
+                    print(status, flush=True)
 
             print(' done!')
             print('Upload finished')

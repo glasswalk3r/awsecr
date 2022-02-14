@@ -99,3 +99,4 @@ def image_push(account_id: str, repository: str, region: str,
                     yield f"layer: {line['id']}, progress: {line['progress']}"
             else:
                 yield '.'
+
