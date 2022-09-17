@@ -58,7 +58,7 @@ clean-test: ## remove test and coverage artifacts
 	rm -fr .pytest_cache
 
 lint: ## check style with flake8
-	flake8 change_control tests
+	flake8 tests
 
 test:  ## tests with pytest
 	pytest -v -s --cov=awsecr
