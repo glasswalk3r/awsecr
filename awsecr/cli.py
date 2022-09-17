@@ -30,8 +30,8 @@ ECR to manage Docker images.',
                                      )
     parser.add_argument('operation', choices=['repos', 'image'],
                         help='the desired operation with the registry')
-    parser.add_argument('--image', help='the local Docker image to use together\
- with the image --push sub operation.')
+    parser.add_argument('--image', help='the local Docker image to use \
+together with the image --push sub operation.')
 
     group = parser.add_mutually_exclusive_group()
     metavar = 'REPOSITORY'
@@ -96,9 +96,10 @@ the repository.')
             return 1
 
     if args.operation == 'repos':
-        
+
         if args.push or args.list:
-            print('The repos operations does not support any argument!\n', file=sys.stderr)
+            print('The repos operations does not support any argument!\n',
+                  file=sys.stderr)
             parser.print_help()
             return 1
 
