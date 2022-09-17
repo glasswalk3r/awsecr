@@ -1,7 +1,7 @@
 """Tests for AWS ECR images."""
 import pytest
 import inspect
-import datetime
+from datetime import datetime
 from dateutil.tz import tzlocal
 
 from awsecr.image import ECRImage, list_ecr
@@ -11,7 +11,7 @@ from .shared import AwsEcrMetaStub
 
 @pytest.fixture(scope='module')
 def now():
-    return datetime.datetime.now()
+    return datetime.now()
 
 
 @pytest.fixture
@@ -61,13 +61,13 @@ json'
                     'imageDigest': 'sha256:1107d18937b5bf116497028214d714d3921\
     fc45bbb8f7001b452a3da7988bbb6',
                     'imageManifestMediaType': self.manifest_media_type,
-                    'imagePushedAt': datetime.datetime(
+                    'imagePushedAt': datetime(
                         2021, 12, 15, 18, 54, 58, tzinfo=tzlocal()),
                     'imageScanFindingsSummary': {
                         'findingSeverityCounts': {'LOW': 1},
-                        'imageScanCompletedAt': datetime.datetime(
+                        'imageScanCompletedAt': datetime(
                             2021, 12, 15, 18, 55, 3, tzinfo=tzlocal()),
-                        'vulnerabilitySourceUpdatedAt': datetime.datetime(
+                        'vulnerabilitySourceUpdatedAt': datetime(
                             2021, 12, 14, 13, 8, 57, tzinfo=tzlocal())
                     },
                     'imageScanStatus': {
@@ -84,13 +84,13 @@ json'
                     'imageDigest': 'sha256:aa5c5956c88de0b7d34f393f3135ef72da1\
     2cbf0bb5b3282a2e8ad3e30a8d8aa',
                     'imageManifestMediaType': self.manifest_media_type,
-                    'imagePushedAt': datetime.datetime(
+                    'imagePushedAt': datetime(
                         2021, 12, 1, 18, 26, 46, tzinfo=tzlocal()),
                     'imageScanFindingsSummary': {
                         'findingSeverityCounts': {'MEDIUM': 1},
-                        'imageScanCompletedAt': datetime.datetime(
+                        'imageScanCompletedAt': datetime(
                             2021, 12, 1, 18, 26, 49, tzinfo=tzlocal()),
-                        'vulnerabilitySourceUpdatedAt': datetime.datetime(
+                        'vulnerabilitySourceUpdatedAt': datetime(
                             2021, 11, 24, 13, 11, 37, tzinfo=tzlocal())
                     },
                     'imageScanStatus': {
@@ -107,13 +107,13 @@ json'
                     'imageDigest': 'sha256:f9f04088665977d127c2034caaa0adcb820\
     e2f3e0ffacd608df43cf77f76585d',
                     'imageManifestMediaType': self.manifest_media_type,
-                    'imagePushedAt': datetime.datetime(
+                    'imagePushedAt': datetime(
                         2021, 12, 15, 19, 9, 13, tzinfo=tzlocal()),
                     'imageScanFindingsSummary': {
                         'findingSeverityCounts': {'LOW': 1},
-                        'imageScanCompletedAt': datetime.datetime(
+                        'imageScanCompletedAt': datetime(
                             2021, 12, 15, 19, 9, 17, tzinfo=tzlocal()),
-                        'vulnerabilitySourceUpdatedAt': datetime.datetime(
+                        'vulnerabilitySourceUpdatedAt': datetime(
                             2021, 12, 14, 13, 8, 57, tzinfo=tzlocal())
                     },
                     'imageScanStatus': {
@@ -130,13 +130,13 @@ json'
                     'imageDigest': 'sha256:d20b69e3f9da4d969f50ee3f8a40889abc7\
     8cd48f26d8238f946451fcffba9e3',
                     'imageManifestMediaType': self.manifest_media_type,
-                    'imagePushedAt': datetime.datetime(
+                    'imagePushedAt': datetime(
                         2021, 12, 1, 17, 27, 27, tzinfo=tzlocal()),
                     'imageScanFindingsSummary': {
                         'findingSeverityCounts': {'LOW': 1},
-                        'imageScanCompletedAt': datetime.datetime(
+                        'imageScanCompletedAt': datetime(
                             2021, 12, 1, 17, 27, 31, tzinfo=tzlocal()),
-                        'vulnerabilitySourceUpdatedAt': datetime.datetime(
+                        'vulnerabilitySourceUpdatedAt': datetime(
                             2021, 11, 24, 13, 11, 37, tzinfo=tzlocal())
                     },
                     'imageScanStatus': {
@@ -233,13 +233,21 @@ def test_list_ecr(registry_id):
     expected = [
         ['Image', 'Scan status', 'Size (MB)', 'Pushed at', 'Vulnerabilities'],
         ['012345678910.dkr.ecr.us-east-1.amazonaws.com/nodejs:12-0.1.0',
-         'COMPLETE', '29.3', '2021-12-01 17:27:27-03:00', {'LOW': 1}],
+         'COMPLETE', '29.3',
+         str(datetime(2021, 12, 1, 17, 27, 27, tzinfo=tzlocal())),
+         {'LOW': 1}],
         ['012345678910.dkr.ecr.us-east-1.amazonaws.com/nodejs:12-0.1.1',
-         'COMPLETE', '29.3', '2021-12-15 18:54:58-03:00', {'LOW': 1}],
+         'COMPLETE', '29.3',
+         str(datetime(2021, 12, 15, 18, 54, 58, tzinfo=tzlocal())),
+         {'LOW': 1}],
         ['012345678910.dkr.ecr.us-east-1.amazonaws.com/nodejs:14-0.1.0',
-         'COMPLETE', '40.73', '2021-12-01 18:26:46-03:00', {'MEDIUM': 1}],
+         'COMPLETE', '40.73',
+         str(datetime(2021, 12, 1, 18, 26, 46, tzinfo=tzlocal())),
+         {'MEDIUM': 1}],
         ['012345678910.dkr.ecr.us-east-1.amazonaws.com/nodejs:14-0.1.1',
-         'COMPLETE', '40.77', '2021-12-15 19:09:13-03:00', {'LOW': 1}],
+         'COMPLETE', '40.77',
+         str(datetime(2021, 12, 15, 19, 9, 13, tzinfo=tzlocal())),
+         {'LOW': 1}],
     ]
 
     assert result == expected
