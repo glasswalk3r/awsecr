@@ -1,6 +1,6 @@
 # awsecr
 
-![Unit tests](https://github.com/glasswalk3r/awsecr/actions/workflows/python-app.yml/badge.svg?branch=main)
+[![Python application](https://github.com/glasswalk3r/awsecr/actions/workflows/python-app.yml/badge.svg)](https://github.com/glasswalk3r/awsecr/actions/workflows/python-app.yml)
 
 CLI to interact with AWS ECR service.
 
