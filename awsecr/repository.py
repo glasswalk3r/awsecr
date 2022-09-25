@@ -38,7 +38,7 @@ class ECRRepos:
         resp = self.client.describe_repositories()
         all: Deque[List[str]] = deque()
         all.append(ECRRepo.fields())
-        temp = deque()
+        temp: Deque = deque()
 
         try:
             for repo in resp['repositories']:

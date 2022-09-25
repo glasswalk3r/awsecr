@@ -121,7 +121,7 @@ def _ansi_vulnerabilities(current: Vulnerabilities, scan_status: str):
     if scan_status == 'FAILED':
         return f'{Fore.RED}{current["UNDEFINED"]}{Style.RESET_ALL}'
 
-    findings = defaultdict(int)
+    findings: Vulnerabilities = defaultdict(int)
 
     for k in current:
         findings[k] += current[k]
