@@ -1,5 +1,4 @@
 mypy
 types-colorama
-boto3-stubs
 botocore-stubs
 
