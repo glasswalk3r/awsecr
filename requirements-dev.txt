@@ -1,7 +1,7 @@
 -r requirements.txt
+-r requirements-typing.txt
 
 flake8
-mypy
 pytest
 pytest-flake8
 twine
@@ -11,3 +11,4 @@ bump2version
 build
 pytest-runner
 python-dateutil
+

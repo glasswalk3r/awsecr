@@ -8,7 +8,7 @@ with open('README.md') as readme_file:
     readme = readme_file.read()
 
 requirements = ['boto3==1.20.16', 'docker==5.0.3', 'terminaltables==3.1.0',
-                'colorama==0.4.4', 'boto3-stubs[ecr,sts]']
+                'colorama==0.4.4', 'boto3-stubs[ecr,sts]==1.24.80']
 setup_requirements = ['pytest-runner', ]
 test_requirements = ['pytest>=3', ]
 
@@ -23,6 +23,7 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
     ],
     description="Easy interaction with AWS ECR from a CLI",
     entry_points={

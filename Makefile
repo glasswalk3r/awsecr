@@ -57,11 +57,13 @@ clean-test: ## remove test and coverage artifacts
 	rm -fr htmlcov/
 	rm -fr .pytest_cache
 
-lint: ## check style with flake8
-	flake8 tests
+lint:
+	flake8 ${PROJECT_NAME} tests
+	mypy ${PROJECT_NAME}
+	find . -type f -name '*.yml' | xargs yamllint
 
 test:  ## tests with pytest
-	pytest -v -s --cov=awsecr
+	pytest -v -s --cov=${PROJECT_NAME}
 
 coverage:  ## checks testing coverage
 	coverage run --source awsecr -m pytest
