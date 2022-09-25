@@ -1,5 +1,5 @@
 """ECR image module."""
-from typing import List, Dict, Union, Literal, Deque, Callable
+from typing import List, Dict, Union, Literal, Deque, Callable, Sequence
 from mypy_boto3_ecr.type_defs import ImageDetailTypeDef
 from botocore.exceptions import ClientError
 from collections import deque
@@ -10,6 +10,7 @@ from awsecr.awsecr import registry_fqdn
 Vulnerabilities = Dict[Union[Literal['CRITICAL'], Literal['HIGH'],
                              Literal['INFORMATIONAL'], Literal['LOW'],
                              Literal['MEDIUM'], Literal['UNDEFINED']], int]
+ImageAsList = Sequence[Union[str, Vulnerabilities]]
 
 
 class ECRImage():
@@ -45,7 +46,7 @@ class ECRImage():
         except KeyError as e:
             raise InvalidPayload(str(e), self.ecr_client_creator)
 
-    def to_list(self) -> List[str]:
+    def to_list(self) -> ImageAsList:
         """Convert a list attributes to a list of strings."""
         return [self.fullname, self.status, '{:.4n}'.format(self.size_in_mb()),
                 self.pushed_at, self.findings]
@@ -73,7 +74,7 @@ def list_ecr(account_id: str,
              repository: str,
              ecr_client,
              region: str = None,
-             ansi: Callable = None) -> List[List[str]]:
+             ansi: Callable = None) -> List[ImageAsList]:
     """List all ECR images from a repository.
 
     Arguments:
@@ -91,8 +92,7 @@ def list_ecr(account_id: str,
     if region is None:
         region = ecr_client.meta.region_name
 
-    images: Deque[List[str]]
-    images = deque()
+    images: Deque[ImageAsList] = deque()
     registry = registry_fqdn(account_id=account_id, region=region)
 
     try:
