@@ -61,7 +61,7 @@ lint: ## check style with flake8
 	flake8 tests
 
 test:  ## tests with pytest
-	pytest -v -s --cov=awsecr
+	pytest -v -s --cov-report term-missing --cov=awsecr
 
 coverage:  ## checks testing coverage
 	coverage run --source awsecr -m pytest
