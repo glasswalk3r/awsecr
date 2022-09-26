@@ -3,9 +3,11 @@ import pytest
 import inspect
 from datetime import datetime
 from dateutil.tz import tzlocal
+from botocore.exceptions import ClientError
 
 from awsecr.image import ECRImage, list_ecr
-from awsecr.exception import InvalidPayload
+from awsecr.exception import InvalidPayload, ECRClientException
+from awsecr.cli import _ansi_vulnerabilities
 from .shared import AwsMetaStub
 
 
@@ -43,6 +45,7 @@ json'
 
     def __init__(self, registry_id):
         self.registry_id = registry_id
+        self._force_exception = False
         self._payload = {
             'ResponseMetadata': {
                 'HTTPHeaders': {
@@ -152,10 +155,30 @@ json'
         }
 
     def describe_images(self, registryId: str, repositoryName: str):
+
+        # see https://github.com/boto/botocore/blob/develop/tests/unit/test_exceptions.py
+        if self._force_exception:
+            response = {
+                'ResponseMetadata': {
+                    'HTTPHeaders': {},
+                    'HTTPStatusCode': 503,
+                    'MaxAttemptsReached': True,
+                    'RetryAttempts': 4,
+                },
+                'Error': {'Code': 401}
+            }
+            raise ClientError(response, 'DescribeImages')  # type: ignore
+
         return self._payload
 
-    def break_payload(self):
+    def break_one_image_payload(self):
         self._payload['imageDetails'][0].pop('imageSizeInBytes')
+
+    def break_all_images_payload(self):
+        self._payload.pop('imageDetails')
+
+    def force_client_exception(self):
+        self._force_exception = True
 
 
 def test_ecr_image_class():
@@ -225,6 +248,40 @@ def test_ecr_image_exception(image_details):
     assert 'describe_images' in str(excinfo.value)
 
 
+def test_ecr_image_no_scan_summary(image_details):
+    image_details.pop('imageScanFindingsSummary')
+    instance = ECRImage('0123', 'foobar', image_details)
+    assert instance.findings == {'UNDEFINED': -1}
+
+
+def test_list_ecr_ansi(registry_id):
+    client = AWSECRClientStub(registry_id)
+    result = list_ecr(account_id=registry_id, repository='nodejs',
+                      ecr_client=client, ansi=_ansi_vulnerabilities)
+    assert result.__class__.__name__ == 'list'
+    expected = [
+        ['Image', 'Scan status', 'Size (MB)', 'Pushed at', 'Vulnerabilities'],
+        ['012345678910.dkr.ecr.us-east-1.amazonaws.com/nodejs:12-0.1.0',
+         'COMPLETE', '29.3',
+         str(datetime(2021, 12, 1, 17, 27, 27, tzinfo=tzlocal())),
+         '\x1b[31m0\x1b[0m/\x1b[91m0\x1b[0m/\x1b[33m0\x1b[0m/\x1b[93m1\x1b[0m/\x1b[92m0\x1b[0m/\x1b[32m0\x1b[0m'],
+        ['012345678910.dkr.ecr.us-east-1.amazonaws.com/nodejs:12-0.1.1',
+         'COMPLETE', '29.3',
+         str(datetime(2021, 12, 15, 18, 54, 58, tzinfo=tzlocal())),
+         '\x1b[31m0\x1b[0m/\x1b[91m0\x1b[0m/\x1b[33m0\x1b[0m/\x1b[93m1\x1b[0m/\x1b[92m0\x1b[0m/\x1b[32m0\x1b[0m'],
+        ['012345678910.dkr.ecr.us-east-1.amazonaws.com/nodejs:14-0.1.0',
+         'COMPLETE', '40.73',
+         str(datetime(2021, 12, 1, 18, 26, 46, tzinfo=tzlocal())),
+         '\x1b[31m0\x1b[0m/\x1b[91m0\x1b[0m/\x1b[33m1\x1b[0m/\x1b[93m0\x1b[0m/\x1b[92m0\x1b[0m/\x1b[32m0\x1b[0m'],
+        ['012345678910.dkr.ecr.us-east-1.amazonaws.com/nodejs:14-0.1.1',
+         'COMPLETE', '40.77',
+         str(datetime(2021, 12, 15, 19, 9, 13, tzinfo=tzlocal())),
+         '\x1b[31m0\x1b[0m/\x1b[91m0\x1b[0m/\x1b[33m0\x1b[0m/\x1b[93m1\x1b[0m/\x1b[92m0\x1b[0m/\x1b[32m0\x1b[0m'],
+    ]
+
+    assert result == expected
+
+
 def test_list_ecr(registry_id):
     client = AWSECRClientStub(registry_id)
     result = list_ecr(account_id=registry_id, repository='nodejs',
@@ -255,10 +312,32 @@ def test_list_ecr(registry_id):
 
 def test_list_ecr_client_exception(registry_id):
     client = AWSECRClientStub(registry_id)
-    client.break_payload()
+    client.force_client_exception()
+
+    with pytest.raises(ECRClientException) as excinfo:
+        list_ecr(account_id=registry_id, repository='nodejs',
+                 ecr_client=client)
+
+    assert 'DescribeImages' in str(excinfo.value)
+
+
+def test_list_ecr_invalid_payload(registry_id):
+    client = AWSECRClientStub(registry_id)
+    client.break_all_images_payload()
 
     with pytest.raises(InvalidPayload) as excinfo:
         list_ecr(account_id=registry_id, repository='nodejs',
                  ecr_client=client)
 
-    assert 'describe_images' in str(excinfo.value)
+    assert 'imageDetails' in str(excinfo.value)
+
+
+def test_list_ecr_invalid_image_payload(registry_id):
+    client = AWSECRClientStub(registry_id)
+    client.break_one_image_payload()
+
+    with pytest.raises(InvalidPayload) as excinfo:
+        list_ecr(account_id=registry_id, repository='nodejs',
+                 ecr_client=client)
+
+    assert 'imageSizeInBytes' in str(excinfo.value)
