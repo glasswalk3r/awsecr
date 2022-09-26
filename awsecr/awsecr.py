@@ -43,7 +43,7 @@ def _extract_credentials(token: str) -> Tuple[str, ...]:
 
 
 def _ecr_token(account_id: str,
-               client: mypy_boto3_ecr.Client = boto3.client('ecr'),
+               client: mypy_boto3_ecr.Client,
                region: str = None) -> Tuple[str, ...]:
 
     if region is None:
@@ -99,10 +99,11 @@ class DockerClient(BaseDockerClient):
 
 def login_ecr(account_id: str,
               docker_client: BaseDockerClient = DockerClient(),
+              ecr_client: mypy_boto3_ecr.Client = boto3.client('ecr'),
               region: Optional[str] = None) -> BaseDockerClient:
 
     token: str
-    token, region = _ecr_token(account_id=account_id, region=region)
+    token, region = _ecr_token(account_id=account_id, client=ecr_client, region=region)
     username: str
     password: str
     username, password = _extract_credentials(token)
