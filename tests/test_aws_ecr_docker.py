@@ -2,7 +2,7 @@
 import inspect
 import docker
 
-from awsecr.docker import BaseDockerClient, DockerClient
+from awsecr.docker import BaseDockerClient, DockerClientLocal
 
 
 def test_docker_base_class():
@@ -13,12 +13,12 @@ def test_docker_base_class():
 
 
 def test_concrete_class():
-    assert inspect.isclass(DockerClient)
-    assert issubclass(DockerClient, BaseDockerClient)
+    assert inspect.isclass(DockerClientLocal)
+    assert issubclass(DockerClientLocal, BaseDockerClient)
 
 
 def test_concrete_init():
-    client = DockerClient()
+    client = DockerClientLocal()
     assert inspect.ismethod(getattr(client, '__init__'))
     assert hasattr(client, '_client')
     assert type(client._client) == docker.DockerClient

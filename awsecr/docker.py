@@ -22,7 +22,7 @@ class BaseDockerClient(metaclass=ABCMeta):
         pass
 
 
-class DockerClient(BaseDockerClient):
+class DockerClientLocal(BaseDockerClient):
     """Implementation of a Docker client using docker.DockerClient.
 
     This class wraps docker.DockerClient in order to follow the interface defined by awsecr.awsecr.BaseDockerClient.

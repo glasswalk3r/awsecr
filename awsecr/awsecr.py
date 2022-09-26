@@ -6,7 +6,7 @@ import mypy_boto3_sts
 import mypy_boto3_ecr
 
 from awsecr.exception import InvalidPayload, InvalidResponseStatus
-from awsecr.docker import BaseDockerClient, DockerClient, LoginResponse
+from awsecr.docker import BaseDockerClient, DockerClientLocal, LoginResponse
 
 
 def account_info(
@@ -60,7 +60,7 @@ def _ecr_token(account_id: str,
 
 
 def login_ecr(account_id: str,
-              docker_client: BaseDockerClient = DockerClient(),
+              docker_client: BaseDockerClient = DockerClientLocal(),
               ecr_client: mypy_boto3_ecr.Client = boto3.client('ecr'),
               region: Optional[str] = None) -> BaseDockerClient:
 
