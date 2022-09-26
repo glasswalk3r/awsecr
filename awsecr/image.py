@@ -107,11 +107,10 @@ def list_ecr(account_id: str,
         else:
             for image in resp['imageDetails']:
                 images.append(ECRImage(registry, repository, image).to_list())
-    except ValueError as e:
+    except KeyError as e:
         raise InvalidPayload(missing_key=str(e),
                              api_method='get_authorization_token')
     except ClientError as e:
-        print(e)
         raise ECRClientException(error_code=e.response['Error']['Code'],
                                  message=str(e))
 
