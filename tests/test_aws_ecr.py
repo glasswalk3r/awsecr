@@ -1,7 +1,5 @@
 """Tests for `awsecr` package."""
 import pytest
-import base64
-from datetime import datetime
 from mypy_boto3_sts.type_defs import GetCallerIdentityResponseTypeDef
 
 from awsecr.awsecr import (
@@ -11,32 +9,7 @@ from awsecr.awsecr import (
     _ecr_token
 )
 from awsecr.exception import InvalidPayload
-from .shared import AwsMetaStub
-
-
-class AwsEcrStub:
-    meta = AwsMetaStub()
-
-    @staticmethod
-    def ecr_token():
-        return base64.b64encode(b'AWS:foobar')
-
-    def get_authorization_token(self, registryIds):
-        return self.auth_data
-
-    def __init__(self):
-        self.auth_data = {
-                'authorizationData': [
-                    {
-                        'authorizationToken': self.ecr_token(),
-                        'expiresAt': datetime(2015, 1, 1),
-                        'proxyEndpoint': 'string'
-                    },
-                ]
-            }
-
-    def _break(self):
-        self.auth_data['authorizationData'][0].pop('authorizationToken')
+from .shared import AwsMetaStub, AwsEcrStub
 
 
 class AwsStsStub:
@@ -131,11 +104,6 @@ def test__ecr_token_with_exception(broken_ecr_client, registry_id):
         _ecr_token(registry_id, broken_ecr_client)
 
     assert 'get_authorization_token' in str(excinfo.value)
-
-
-@pytest.mark.skip(reason='To be implemented together with stub')
-def test_login_ecr():
-    pass
 
 
 @pytest.mark.skip(reason='To be implemented together with stub')
