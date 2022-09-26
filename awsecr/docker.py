@@ -3,6 +3,7 @@ import docker
 from abc import ABCMeta, abstractmethod
 from typing import Dict
 
+# from docker.DockerClient.login return
 # {'IdentityToken': '', 'Status': 'Login Succeeded'}
 LoginResponse = Dict[str, str]
 
