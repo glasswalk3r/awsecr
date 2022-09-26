@@ -11,11 +11,11 @@ from awsecr.awsecr import (
     _ecr_token
 )
 from awsecr.exception import InvalidPayload
-from .shared import AwsEcrMetaStub
+from .shared import AwsMetaStub
 
 
 class AwsEcrStub:
-    meta = AwsEcrMetaStub()
+    meta = AwsMetaStub()
 
     @staticmethod
     def ecr_token():
@@ -41,7 +41,7 @@ class AwsEcrStub:
 
 class AwsStsStub:
     user = 'foobar'
-    meta = AwsEcrMetaStub()
+    meta = AwsMetaStub()
 
     def __init__(self, account):
         self.account = account
@@ -117,7 +117,7 @@ def test__ecr_token(registry_id):
     result = _ecr_token(registry_id, AwsEcrStub())
     assert result.__class__.__name__ == 'tuple'
     assert result[0] == AwsEcrStub.ecr_token()
-    assert result[1] == AwsEcrMetaStub.region_name
+    assert result[1] == AwsMetaStub.region_name
 
 
 def test__ecr_token_with_region(registry_id):

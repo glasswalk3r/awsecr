@@ -6,7 +6,7 @@ from dateutil.tz import tzlocal
 
 from awsecr.image import ECRImage, list_ecr
 from awsecr.exception import InvalidPayload
-from .shared import AwsEcrMetaStub
+from .shared import AwsMetaStub
 
 
 @pytest.fixture(scope='module')
@@ -35,7 +35,7 @@ def new_instance(now, image_details):
 
 
 class AWSECRClientStub:
-    meta = AwsEcrMetaStub()
+    meta = AwsMetaStub()
     artifact_media_type = 'application/vnd.docker.container.image.v1+json'
     manifest_media_type = 'application/vnd.docker.distribution.manifest.v2+\
 json'
