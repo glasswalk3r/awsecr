@@ -56,10 +56,14 @@ clean-test: ## remove test and coverage artifacts
 	rm -f .coverage
 	rm -fr htmlcov/
 	rm -fr .pytest_cache
+	rm -rf .mypy_cache
+	rm -rf .mutmut-cache
+	rm -rf html
 
 lint:
 	flake8 ${PROJECT_NAME} tests
 	mypy ${PROJECT_NAME}
+	flake8 ${PROJECT_NAME} --exit-zero --count --statistics
 	find . -type f -name '*.yml' | xargs yamllint
 
 test:  ## tests with pytest
