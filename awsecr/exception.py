@@ -28,3 +28,8 @@ class ECRClientException(BaseException):
             super().__init__(message.split(':')[1].lstrip())
         else:
             super().__init__(message)
+
+
+class InvalidResponseStatus(BaseException):
+    def __init__(self, status: str):
+        super().__init__(f'Unexpected status from login response: "{status}"')
