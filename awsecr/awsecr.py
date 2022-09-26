@@ -1,13 +1,12 @@
 """Main module."""
 import boto3
-from typing import Tuple, Generator, Optional, Dict
-import docker
+from typing import Tuple, Generator, Optional
 import base64
 import mypy_boto3_sts
 import mypy_boto3_ecr
-from abc import ABCMeta, abstractmethod
 
 from awsecr.exception import InvalidPayload, InvalidResponseStatus
+from awsecr.docker import BaseDockerClient, DockerClient, LoginResponse
 
 
 def account_info(
@@ -58,43 +57,6 @@ def _ecr_token(account_id: str,
                              api_method='get_authorization_token')
 
     return tuple([token, region])
-
-
-# {'IdentityToken': '', 'Status': 'Login Succeeded'}
-LoginResponse = Dict[str, str]
-
-
-class BaseDockerClient(metaclass=ABCMeta):
-    @abstractmethod
-    def login(self, username, password, registry, reauth) -> LoginResponse:
-        pass
-
-    @abstractmethod
-    def image(self, image_name: str) -> docker.models.images.Image:
-        pass
-
-    @abstractmethod
-    def push(self, registry: str, tag: str, stream: bool, decode: bool):
-        pass
-
-
-class DockerClient(BaseDockerClient):
-    def __init__(self):
-        self._client = docker.DockerClient(base_url='unix://var/run/docker.sock')
-
-    def login(self, username, password, registry, reauth) -> LoginResponse:
-        return self._client.login(
-            username=username,
-            password=password,
-            registry=registry,
-            reauth=reauth
-        )
-
-    def image(self, image_name: str) -> docker.models.images.Image:
-        return self._client.images.get(image_name)
-
-    def push(self, registry: str, tag: str, stream: bool, decode: bool):
-        return self._client.push(repository=registry, tag=tag, stream=stream, decode=stream)
 
 
 def login_ecr(account_id: str,
