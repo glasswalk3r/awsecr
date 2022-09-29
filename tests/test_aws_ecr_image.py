@@ -261,16 +261,17 @@ def test_list_ecr_ansi(registry_id):
     result = list_ecr(account_id=registry_id, repository='nodejs',
                       ecr_client=client, ansi=_ansi_vulnerabilities)
     assert result.__class__.__name__ == 'list'
+    ansi_color = '\x1b[31m0\x1b[0m/\x1b[91m0\x1b[0m/\x1b[33m0\x1b[0m/\x1b[93m1\x1b[0m/\x1b[92m0\x1b[0m/\x1b[32m0\x1b[0m'
     expected = [
         RESPONSE_HEADER,
         ['012345678910.dkr.ecr.us-east-1.amazonaws.com/nodejs:12-0.1.0',
          'COMPLETE', '29.3',
          str(datetime(2021, 12, 1, 17, 27, 27, tzinfo=tzlocal())),
-         '\x1b[31m0\x1b[0m/\x1b[91m0\x1b[0m/\x1b[33m0\x1b[0m/\x1b[93m1\x1b[0m/\x1b[92m0\x1b[0m/\x1b[32m0\x1b[0m'],
+         ansi_color],
         ['012345678910.dkr.ecr.us-east-1.amazonaws.com/nodejs:12-0.1.1',
          'COMPLETE', '29.3',
          str(datetime(2021, 12, 15, 18, 54, 58, tzinfo=tzlocal())),
-         '\x1b[31m0\x1b[0m/\x1b[91m0\x1b[0m/\x1b[33m0\x1b[0m/\x1b[93m1\x1b[0m/\x1b[92m0\x1b[0m/\x1b[32m0\x1b[0m'],
+         ansi_color],
         ['012345678910.dkr.ecr.us-east-1.amazonaws.com/nodejs:14-0.1.0',
          'COMPLETE', '40.73',
          str(datetime(2021, 12, 1, 18, 26, 46, tzinfo=tzlocal())),
@@ -278,7 +279,7 @@ def test_list_ecr_ansi(registry_id):
         ['012345678910.dkr.ecr.us-east-1.amazonaws.com/nodejs:14-0.1.1',
          'COMPLETE', '40.77',
          str(datetime(2021, 12, 15, 19, 9, 13, tzinfo=tzlocal())),
-         '\x1b[31m0\x1b[0m/\x1b[91m0\x1b[0m/\x1b[33m0\x1b[0m/\x1b[93m1\x1b[0m/\x1b[92m0\x1b[0m/\x1b[32m0\x1b[0m'],
+         ansi_color]
     ]
 
     assert result == expected
