@@ -131,3 +131,4 @@ dmypy.json
 # mutmut
 .mutmut-cache
 html
+.scannerwork/
