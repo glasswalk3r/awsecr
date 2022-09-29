@@ -51,33 +51,7 @@ the repository.')
             return list_images(args)
 
         elif args.push:
-            account_id, user, region = account_info()
-
-            if args.image is None:
-                ret = _die('Missing --image parameter!')
-                parser.print_help()
-                return ret
-
-            print(f'Authenticating against {args.push}... ', end='')
-
-            try:
-                docker_client: BaseDockerClient = login_ecr(account_id)
-            except InvalidResponseStatus as e:
-                return _die(str(e))
-            else:
-                print('done', flush=True)
-
-            for status in image_push(account_id=account_id,
-                                     repository=args.push,
-                                     region=region,
-                                     docker=docker_client,
-                                     current_image=args.image):
-                print(status, end='', flush=True)
-
-            print(' done!')
-            print('Upload finished')
-            return 0
-
+            return push_image(args, parser)
         else:
             ret = _die('image operation requires --list or --push options')
             parser.print_help()
@@ -117,6 +91,35 @@ def list_images(args):
     table = SingleTable(images,
                         title=f' Docker images at {args.list} ')
     print(table.table)
+    return 0
+
+
+def push_image(args, parser):
+    account_id, user, region = account_info()
+
+    if args.image is None:
+        ret = _die('Missing --image parameter!')
+        parser.print_help()
+        return ret
+
+    print(f'Authenticating against {args.push}... ', end='')
+
+    try:
+        docker_client: BaseDockerClient = login_ecr(account_id)
+    except InvalidResponseStatus as e:
+        return _die(str(e))
+    else:
+        print('done', flush=True)
+
+    for status in image_push(account_id=account_id,
+                             repository=args.push,
+                             region=region,
+                             docker=docker_client,
+                             current_image=args.image):
+        print(status, end='', flush=True)
+
+    print(' done!')
+    print('Upload finished')
     return 0
 
 
