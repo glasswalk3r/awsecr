@@ -108,4 +108,8 @@ def test__ecr_token_with_exception(broken_ecr_client, registry_id):
 
 @pytest.mark.skip(reason='To be implemented together with stub')
 def test_image_push():
+    """Test the image_push function.
+
+    Not implemented yet because it will require a stub and refactoring.
+    """
     pass

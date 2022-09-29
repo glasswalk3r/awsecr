@@ -26,6 +26,7 @@ class AwsEcrStub():
         return base64.b64encode(b'AWS:foobar')
 
     def get_authorization_token(self, registryIds):
+        _ = registryIds
         return self.auth_data
 
     def __init__(self):

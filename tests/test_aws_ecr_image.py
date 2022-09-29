@@ -42,6 +42,7 @@ class AWSECRClientStub:
     manifest_media_type = 'application/vnd.docker.distribution.manifest.v2+\
 json'
     only_repository = 'nodejs'
+    _scan_completed = 'The scan was completed successfully.'
 
     def __init__(self, registry_id):
         self.registry_id = registry_id
@@ -74,7 +75,7 @@ json'
                             2021, 12, 14, 13, 8, 57, tzinfo=tzlocal())
                     },
                     'imageScanStatus': {
-                        'description': 'The scan was completed successfully.',
+                        'description': self._scan_completed,
                         'status': 'COMPLETE'
                     },
                     'imageSizeInBytes': 30007575,
@@ -97,7 +98,7 @@ json'
                             2021, 11, 24, 13, 11, 37, tzinfo=tzlocal())
                     },
                     'imageScanStatus': {
-                        'description': 'The scan was completed successfully.',
+                        'description': self._scan_completed,
                         'status': 'COMPLETE'
                     },
                     'imageSizeInBytes': 41711442,
@@ -120,7 +121,7 @@ json'
                             2021, 12, 14, 13, 8, 57, tzinfo=tzlocal())
                     },
                     'imageScanStatus': {
-                        'description': 'The scan was completed successfully.',
+                        'description': self._scan_completed,
                         'status': 'COMPLETE'
                     },
                     'imageSizeInBytes': 41752369,
@@ -143,7 +144,7 @@ json'
                             2021, 11, 24, 13, 11, 37, tzinfo=tzlocal())
                     },
                     'imageScanStatus': {
-                        'description': 'The scan was completed successfully.',
+                        'description': self._scan_completed,
                         'status': 'COMPLETE'
                     },
                     'imageSizeInBytes': 30008240,
@@ -217,10 +218,11 @@ def test_ecr_image_to_list(new_instance, now):
     ]
 
 
-def test_ecr_image_fields(new_instance):
-    expected = ['Image', 'Scan status', 'Size (MB)', 'Pushed at',
-                'Vulnerabilities']
+RESPONSE_HEADER = ['Image', 'Scan status', 'Size (MB)', 'Pushed at', 'Vulnerabilities']
 
+
+def test_ecr_image_fields(new_instance):
+    expected = RESPONSE_HEADER
     assert new_instance.fields() == expected
 
 
@@ -260,7 +262,7 @@ def test_list_ecr_ansi(registry_id):
                       ecr_client=client, ansi=_ansi_vulnerabilities)
     assert result.__class__.__name__ == 'list'
     expected = [
-        ['Image', 'Scan status', 'Size (MB)', 'Pushed at', 'Vulnerabilities'],
+        RESPONSE_HEADER,
         ['012345678910.dkr.ecr.us-east-1.amazonaws.com/nodejs:12-0.1.0',
          'COMPLETE', '29.3',
          str(datetime(2021, 12, 1, 17, 27, 27, tzinfo=tzlocal())),
@@ -288,7 +290,7 @@ def test_list_ecr(registry_id):
                       ecr_client=client)
     assert result.__class__.__name__ == 'list'
     expected = [
-        ['Image', 'Scan status', 'Size (MB)', 'Pushed at', 'Vulnerabilities'],
+        RESPONSE_HEADER,
         ['012345678910.dkr.ecr.us-east-1.amazonaws.com/nodejs:12-0.1.0',
          'COMPLETE', '29.3',
          str(datetime(2021, 12, 1, 17, 27, 27, tzinfo=tzlocal())),

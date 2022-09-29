@@ -24,9 +24,11 @@ class DockerClientMock(BaseDockerClient):
         return self._mock
 
     def image(self, image_name: str) -> Image:
+        """Currently not in use."""
         pass
 
     def push(self, registry: str, tag: str, stream: bool, decode: bool):
+        """Currently not in use."""
         pass
 
     def break_response(self):

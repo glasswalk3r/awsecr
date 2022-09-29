@@ -36,8 +36,8 @@ class ECRRepos:
         Returns a collections.deque, where each entry is a list of strings.
         """
         resp = self.client.describe_repositories()
-        all: Deque[List[str]] = deque()
-        all.append(ECRRepo.fields())
+        all_repos: Deque[List[str]] = deque()
+        all_repos.append(ECRRepo.fields())
         temp: Deque = deque()
 
         try:
@@ -51,9 +51,9 @@ class ECRRepos:
         intermediary.sort()
 
         for repo in intermediary:
-            all.append(repo.to_list())
+            all_repos.append(repo.to_list())
 
-        return all
+        return all_repos
 
 
 class ECRRepo:
