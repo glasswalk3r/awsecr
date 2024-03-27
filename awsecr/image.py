@@ -1,5 +1,14 @@
 """ECR image module."""
-from typing import List, Dict, Union, Literal, Deque, Callable, Sequence
+from typing import (
+    Callable,
+    Deque,
+    Dict,
+    List,
+    Literal,
+    Optional,
+    Sequence,
+    Union
+)
 from mypy_boto3_ecr.type_defs import ImageDetailTypeDef
 from botocore.exceptions import ClientError
 from collections import deque
@@ -73,8 +82,8 @@ class ECRImage():
 def list_ecr(account_id: str,
              repository: str,
              ecr_client,
-             region: str = None,
-             ansi: Callable = None) -> List[ImageAsList]:
+             region: Optional[str] = None,
+             ansi: Optional[Callable] = None) -> List[ImageAsList]:
     """List all ECR images from a repository.
 
     Arguments:
