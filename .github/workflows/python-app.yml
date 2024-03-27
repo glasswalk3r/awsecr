@@ -8,8 +8,6 @@ on:  # yamllint disable-line
     paths-ignore:
       - README.md
       - Makefile
-    branches:
-      - main
   pull_request:
     branches:
       - main
