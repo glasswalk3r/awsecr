@@ -11,4 +11,5 @@ bump2version
 build
 pytest-runner
 python-dateutil
+yamllint
 

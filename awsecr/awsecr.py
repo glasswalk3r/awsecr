@@ -1,6 +1,6 @@
 """Main module."""
 import boto3
-from typing import Tuple, Generator, Any
+from typing import Tuple, Generator, Any, Optional
 import docker
 import base64
 import mypy_boto3_sts
@@ -45,7 +45,7 @@ def _extract_credentials(token: str) -> Tuple[str, ...]:
 
 def _ecr_token(account_id: str,
                client: mypy_boto3_ecr.Client = boto3.client('ecr'),
-               region: str = None) -> Tuple[str, ...]:
+               region: Optional[str] = None) -> Tuple[str, ...]:
 
     if region is None:
         region = client.meta.region_name
@@ -62,7 +62,7 @@ def _ecr_token(account_id: str,
 
 
 def login_ecr(account_id: str,
-              region: str = None) -> Tuple[Any, ...]:
+              region: Optional[str] = None) -> Tuple[Any, ...]:
 
     token, region = _ecr_token(account_id=account_id, region=region)
     username, password = _extract_credentials(token)
