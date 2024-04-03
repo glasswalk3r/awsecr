@@ -22,7 +22,7 @@ endef
 export PRINT_HELP_PYSCRIPT
 
 BROWSER := python -c "$$BROWSER_PYSCRIPT"
-PYTHON_VERSION=3.8.5
+PYTHON_VERSION=3.11.4
 PROJECT_NAME=$(shell basename $$PWD)
 
 help:
