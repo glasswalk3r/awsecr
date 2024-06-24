@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 with open('README.md') as readme_file:
     readme = readme_file.read()
 
-requirements = ['boto3==1.34.128', 'docker==7.1.0', 'terminaltables==3.1.10',
+requirements = ['boto3==1.34.131', 'docker==7.1.0', 'terminaltables==3.1.10',
                 'colorama==0.4.6', 'boto3-stubs[ecr,sts]==1.34.128']
 setup_requirements = ['pytest-runner', ]
 test_requirements = ['pytest>=3', ]
