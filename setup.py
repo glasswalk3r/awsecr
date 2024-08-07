@@ -14,7 +14,7 @@ test_requirements = ['pytest>=3', ]
 
 setup(
     author="Alceu Rodrigues de Freitas Junior",
-    author_email='arfreitas@cpan.org',
+    author_email='glasswalk3r@yahoo.com.br',
     python_requires='>=3.8',
     classifiers=[
         'Development Status :: 4 - Beta',
