@@ -14,10 +14,10 @@ test_requirements = ['pytest>=3', ]
 
 setup(
     author="Alceu Rodrigues de Freitas Junior",
-    author_email='arfreitas@cpan.org',
+    author_email='glasswalk3r@yahoo.com.br',
     python_requires='>=3.8',
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'Natural Language :: English',
         'Programming Language :: Python :: 3',
@@ -42,6 +42,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/glasswalk3r/awsecr',
-    version='0.5.2',
+    version='0.5.4',
     zip_safe=False,
 )
